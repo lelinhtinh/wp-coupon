@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Fired during plugin deactivation
  *
@@ -20,8 +21,8 @@
  * @subpackage Coupon/includes
  * @author     lelinhtinh <lelinhtinh2013@gmail.com>
  */
-class Coupon_Deactivator {
-
+class Coupon_Deactivator
+{
 	/**
 	 * The $_REQUEST during plugin activation.
 	 *
@@ -48,18 +49,19 @@ class Coupon_Deactivator {
 	 *
 	 * @since    1.0.0
 	 */
-	public static function deactivate() {
-
-		if ( false === self::get_request()
-			|| false === self::validate_request( self::$plugin )
+	public static function deactivate()
+	{
+		if (
+			false === self::get_request()
+			|| false === self::validate_request(self::$plugin)
 			|| false === self::check_caps()
 		) {
-			if ( isset( $_REQUEST['plugin'] ) ) {
-				if ( ! check_admin_referer( 'deactivate-plugin_' . self::$request['plugin'] ) ) {
+			if (isset($_REQUEST['plugin'])) {
+				if (!check_admin_referer('deactivate-plugin_' . self::$request['plugin'])) {
 					exit;
 				}
-			} elseif ( isset( $_REQUEST['checked'] ) ) {
-				if ( ! check_admin_referer( 'bulk-plugins' ) ) {
+			} elseif (isset($_REQUEST['checked'])) {
+				if (!check_admin_referer('bulk-plugins')) {
 					exit;
 				}
 			}
@@ -69,7 +71,6 @@ class Coupon_Deactivator {
 		 * The plugin is now safely deactivated.
 		 * Perform your deactivation actions here.
 		 */
-
 	}
 
 	/**
@@ -81,36 +82,34 @@ class Coupon_Deactivator {
 	 * @since    1.0.0
 	 * @return bool|array false or self::$request array.
 	 */
-	private static function get_request() {
-
-		if ( ! empty( $_REQUEST )
-			&& isset( $_REQUEST['_wpnonce'] )
-			&& isset( $_REQUEST['action'] )
+	private static function get_request()
+	{
+		if (
+			!empty($_REQUEST)
+			&& isset($_REQUEST['_wpnonce'])
+			&& isset($_REQUEST['action'])
 		) {
-			if ( isset( $_REQUEST['plugin'] ) ) {
-				if ( false !== wp_verify_nonce( sanitize_text_field( wp_unslash( $_REQUEST['_wpnonce'] ) ), 'deactivate-plugin_' . sanitize_text_field( wp_unslash( $_REQUEST['plugin'] ) ) ) ) {
+			if (isset($_REQUEST['plugin'])) {
+				if (false !== wp_verify_nonce(sanitize_text_field(wp_unslash($_REQUEST['_wpnonce'])), 'deactivate-plugin_' . sanitize_text_field(wp_unslash($_REQUEST['plugin'])))) {
 
-					self::$request['plugin'] = sanitize_text_field( wp_unslash( $_REQUEST['plugin'] ) );
-					self::$request['action'] = sanitize_text_field( wp_unslash( $_REQUEST['action'] ) );
+					self::$request['plugin'] = sanitize_text_field(wp_unslash($_REQUEST['plugin']));
+					self::$request['action'] = sanitize_text_field(wp_unslash($_REQUEST['action']));
 
 					return self::$request;
-
 				}
-			} elseif ( isset( $_REQUEST['checked'] ) ) {
-				if ( false !== wp_verify_nonce( sanitize_text_field( wp_unslash( $_REQUEST['_wpnonce'] ) ), 'bulk-plugins' ) ) {
+			} elseif (isset($_REQUEST['checked'])) {
+				if (false !== wp_verify_nonce(sanitize_text_field(wp_unslash($_REQUEST['_wpnonce'])), 'bulk-plugins')) {
 
-					self::$request['action'] = sanitize_text_field( wp_unslash( $_REQUEST['action'] ) );
-					self::$request['plugins'] = array_map( 'sanitize_text_field', wp_unslash( $_REQUEST['checked'] ) );
+					self::$request['action'] = sanitize_text_field(wp_unslash($_REQUEST['action']));
+					self::$request['plugins'] = array_map('sanitize_text_field', wp_unslash($_REQUEST['checked']));
 
 					return self::$request;
-
 				}
 			}
 		} else {
 
 			return false;
 		}
-
 	}
 
 	/**
@@ -122,24 +121,24 @@ class Coupon_Deactivator {
 	 * @param string $plugin The Plugin folder/name.php.
 	 * @return bool false if either plugin or action does not match, else true.
 	 */
-	private static function validate_request( $plugin ) {
-
-		if ( isset( self::$request['plugin'] )
+	private static function validate_request($plugin)
+	{
+		if (
+			isset(self::$request['plugin'])
 			&& $plugin === self::$request['plugin']
 			&& 'deactivate' === self::$request['action']
 		) {
 
 			return true;
-
-		} elseif ( isset( self::$request['plugins'] )
+		} elseif (
+			isset(self::$request['plugins'])
 			&& 'deactivate-selected' === self::$request['action']
-			&& in_array( $plugin, self::$request['plugins'] )
+			&& in_array($plugin, self::$request['plugins'])
 		) {
 			return true;
 		}
 
 		return false;
-
 	}
 
 	/**
@@ -150,15 +149,12 @@ class Coupon_Deactivator {
 	 * @since    1.0.0
 	 * @return bool false if no caps, else true.
 	 */
-	private static function check_caps() {
-
-		if ( current_user_can( 'activate_plugins' ) ) {
+	private static function check_caps()
+	{
+		if (current_user_can('activate_plugins')) {
 			return true;
 		}
 
 		return false;
-
 	}
-
 }
-

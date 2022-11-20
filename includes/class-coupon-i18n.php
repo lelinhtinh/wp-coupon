@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Define the internationalization functionality
  *
@@ -26,23 +27,19 @@
  * @subpackage Coupon/includes
  * @author     lelinhtinh <lelinhtinh2013@gmail.com>
  */
-class Coupon_I18n {
-
+class Coupon_I18n
+{
 	/**
 	 * Load the plugin text domain for translation.
 	 *
 	 * @since    1.0.0
 	 */
-	public function load_plugin_textdomain() {
-
+	public function load_plugin_textdomain()
+	{
 		load_plugin_textdomain(
 			'coupon',
 			false,
-			dirname( dirname( plugin_basename( __FILE__ ) ) ) . '/languages/'
+			dirname(dirname(plugin_basename(__FILE__))) . '/languages/'
 		);
-
 	}
-
-
-
 }

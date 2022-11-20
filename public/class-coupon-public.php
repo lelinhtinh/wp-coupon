@@ -1,4 +1,5 @@
 <?php
+
 /**
  * The public-facing functionality of the plugin.
  *
@@ -20,8 +21,8 @@
  * @subpackage Coupon/public
  * @author     lelinhtinh <lelinhtinh2013@gmail.com>
  */
-class Coupon_Public {
-
+class Coupon_Public
+{
 	/**
 	 * The ID of this plugin.
 	 *
@@ -57,12 +58,11 @@ class Coupon_Public {
 	 * @param      string $plugin_prefix          The unique prefix of this plugin.
 	 * @param      string $version          The version of this plugin.
 	 */
-	public function __construct( $plugin_name, $plugin_prefix, $version ) {
-
+	public function __construct($plugin_name, $plugin_prefix, $version)
+	{
 		$this->plugin_name   = $plugin_name;
 		$this->plugin_prefix = $plugin_prefix;
 		$this->version = $version;
-
 	}
 
 	/**
@@ -70,10 +70,9 @@ class Coupon_Public {
 	 *
 	 * @since    1.0.0
 	 */
-	public function enqueue_styles() {
-
-		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/coupon-public.css', array(), $this->version, 'all' );
-
+	public function enqueue_styles()
+	{
+		wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/coupon-public.css', array(), $this->version, 'all');
 	}
 
 	/**
@@ -81,10 +80,9 @@ class Coupon_Public {
 	 *
 	 * @since    1.0.0
 	 */
-	public function enqueue_scripts() {
-
-		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/coupon-public.js', array( 'jquery' ), $this->version, true );
-
+	public function enqueue_scripts()
+	{
+		wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/coupon-public.js', array('jquery'), $this->version, true);
 	}
 
 	/**
@@ -100,8 +98,8 @@ class Coupon_Public {
 	 * @param    mixed  $content ShortCode enclosed content.
 	 * @param    string $tag    The Shortcode tag.
 	 */
-	public function oms_shortcode_func( $atts, $content = null, $tag ) {
-
+	public function oms_shortcode_func($atts, $content = null, $tag)
+	{
 		/**
 		 * Combine user attributes with known attributes.
 		 *
@@ -125,19 +123,17 @@ class Coupon_Public {
 		 *
 		 * @see https://developer.wordpress.org/themes/theme-security/data-sanitization-escaping/
 		 */
-		$out = intval( $atts['attribute'] );
+		$out = intval($atts['attribute']);
 
 		/**
 		 * If the shortcode is enclosing, we may want to do something with $content
 		 */
-		if ( ! is_null( $content ) && ! empty( $content ) ) {
-			$out = do_shortcode( $content );// We can parse shortcodes inside $content.
-			$out = intval( $atts['attribute'] ) . ' ' . sanitize_text_field( $out );// Remember to sanitize your user input.
+		if (!is_null($content) && !empty($content)) {
+			$out = do_shortcode($content); // We can parse shortcodes inside $content.
+			$out = intval($atts['attribute']) . ' ' . sanitize_text_field($out); // Remember to sanitize your user input.
 		}
 
 		// ShortCodes are filters and should always return, never echo.
 		return $out;
-
 	}
-
 }

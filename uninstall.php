@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Fired when the plugin is uninstalled.
  *
@@ -34,20 +35,20 @@
  *
  * @since 1.0.0
  */
-function oms_uninstall() {
-
-	if ( ! defined( 'WP_UNINSTALL_PLUGIN' )
-		|| empty( $_REQUEST )
-		|| ! isset( $_REQUEST['plugin'] )
-		|| ! isset( $_REQUEST['action'] )
+function oms_uninstall()
+{
+	if (
+		!defined('WP_UNINSTALL_PLUGIN')
+		|| empty($_REQUEST)
+		|| !isset($_REQUEST['plugin'])
+		|| !isset($_REQUEST['action'])
 		|| 'coupon/coupon.php' !== $_REQUEST['plugin']
 		|| 'delete-plugin' !== $_REQUEST['action']
-		|| ! check_ajax_referer( 'updates', '_ajax_nonce' )
-		|| ! current_user_can( 'activate_plugins' )
+		|| !check_ajax_referer('updates', '_ajax_nonce')
+		|| !current_user_can('activate_plugins')
 	) {
 
 		exit;
-
 	}
 
 	/**
@@ -55,7 +56,6 @@ function oms_uninstall() {
 	 *
 	 * @see https://developer.wordpress.org/plugins/plugin-basics/uninstall-methods/#method-2-uninstall-php
 	 */
-
 }
 
 oms_uninstall();

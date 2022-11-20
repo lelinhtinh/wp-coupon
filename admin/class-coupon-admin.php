@@ -1,4 +1,5 @@
 <?php
+
 /**
  * The admin-specific functionality of the plugin.
  *
@@ -20,8 +21,8 @@
  * @subpackage Coupon/admin
  * @author     lelinhtinh <lelinhtinh2013@gmail.com>
  */
-class Coupon_Admin {
-
+class Coupon_Admin
+{
 	/**
 	 * The ID of this plugin.
 	 *
@@ -57,12 +58,11 @@ class Coupon_Admin {
 	 * @param      string $plugin_prefix    The unique prefix of this plugin.
 	 * @param      string $version    The version of this plugin.
 	 */
-	public function __construct( $plugin_name, $plugin_prefix, $version ) {
-
+	public function __construct($plugin_name, $plugin_prefix, $version)
+	{
 		$this->plugin_name   = $plugin_name;
 		$this->plugin_prefix = $plugin_prefix;
 		$this->version = $version;
-
 	}
 
 	/**
@@ -71,10 +71,9 @@ class Coupon_Admin {
 	 * @since    1.0.0
 	 * @param string $hook_suffix The current admin page.
 	 */
-	public function enqueue_styles( $hook_suffix ) {
-
-		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/coupon-admin.css', array(), $this->version, 'all' );
-
+	public function enqueue_styles($hook_suffix)
+	{
+		wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/coupon-admin.css', array(), $this->version, 'all');
 	}
 
 	/**
@@ -83,13 +82,13 @@ class Coupon_Admin {
 	 * @since    1.0.0
 	 * @param string $hook_suffix The current admin page.
 	 */
-	public function enqueue_scripts( $hook_suffix ) {
-
-		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/coupon-admin.js', array( 'jquery' ), $this->version, false );
-
+	public function enqueue_scripts($hook_suffix)
+	{
+		wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/coupon-admin.js', array('jquery'), $this->version, false);
 	}
 
-	public function options_page() {
+	public function options_page()
+	{
 		add_menu_page(
 			'OMS Coupon Manager',
 			'OMS Coupon',
@@ -100,5 +99,4 @@ class Coupon_Admin {
 			99
 		);
 	}
-
 }

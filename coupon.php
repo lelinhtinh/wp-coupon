@@ -1,4 +1,5 @@
 <?php
+
 /**
  * The plugin bootstrap file
  *
@@ -28,7 +29,7 @@
  */
 
 // If this file is called directly, abort.
-if ( ! defined( 'WPINC' ) ) {
+if (!defined('WPINC')) {
 	die;
 }
 
@@ -37,12 +38,12 @@ if ( ! defined( 'WPINC' ) ) {
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define( 'COUPON_VERSION', '1.0.0' );
+define('COUPON_VERSION', '1.0.0');
 
 /**
  * Define the Plugin basename
  */
-define( 'COUPON_BASE_NAME', plugin_basename( __FILE__ ) );
+define('COUPON_BASE_NAME', plugin_basename(__FILE__));
 
 /**
  * The code that runs during plugin activation.
@@ -50,8 +51,9 @@ define( 'COUPON_BASE_NAME', plugin_basename( __FILE__ ) );
  * This action is documented in includes/class-coupon-activator.php
  * Full security checks are performed inside the class.
  */
-function oms_activate() {
-	require_once plugin_dir_path( __FILE__ ) . 'includes/class-coupon-activator.php';
+function oms_activate()
+{
+	require_once plugin_dir_path(__FILE__) . 'includes/class-coupon-activator.php';
 	Coupon_Activator::activate();
 }
 
@@ -61,19 +63,20 @@ function oms_activate() {
  * This action is documented in includes/class-coupon-deactivator.php
  * Full security checks are performed inside the class.
  */
-function oms_deactivate() {
-	require_once plugin_dir_path( __FILE__ ) . 'includes/class-coupon-deactivator.php';
+function oms_deactivate()
+{
+	require_once plugin_dir_path(__FILE__) . 'includes/class-coupon-deactivator.php';
 	Coupon_Deactivator::deactivate();
 }
 
-register_activation_hook( __FILE__, 'oms_activate' );
-register_deactivation_hook( __FILE__, 'oms_deactivate' );
+register_activation_hook(__FILE__, 'oms_activate');
+register_deactivation_hook(__FILE__, 'oms_deactivate');
 
 /**
  * The core plugin class that is used to define internationalization,
  * admin-specific hooks, and public-facing site hooks.
  */
-require plugin_dir_path( __FILE__ ) . 'includes/class-coupon.php';
+require plugin_dir_path(__FILE__) . 'includes/class-coupon.php';
 
 /**
  * Begins execution of the plugin.
@@ -87,10 +90,9 @@ require plugin_dir_path( __FILE__ ) . 'includes/class-coupon.php';
  *
  * @since    1.0.0
  */
-function oms_run() {
-
+function oms_run()
+{
 	$plugin = new Coupon();
 	$plugin->run();
-
 }
 oms_run();

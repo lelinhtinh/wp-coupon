@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Intentionally empty file.
  *

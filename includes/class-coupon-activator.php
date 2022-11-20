@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Fired during plugin activation
  *
@@ -20,8 +21,8 @@
  * @subpackage Coupon/includes
  * @author     lelinhtinh <lelinhtinh2013@gmail.com>
  */
-class Coupon_Activator {
-
+class Coupon_Activator
+{
 	/**
 	 * The $_REQUEST during plugin activation.
 	 *
@@ -49,18 +50,19 @@ class Coupon_Activator {
 	 *
 	 * @since    1.0.0
 	 */
-	public static function activate() {
-
-		if ( false === self::get_request()
-			|| false === self::validate_request( self::$plugin )
+	public static function activate()
+	{
+		if (
+			false === self::get_request()
+			|| false === self::validate_request(self::$plugin)
 			|| false === self::check_caps()
 		) {
-			if ( isset( $_REQUEST['plugin'] ) ) {
-				if ( ! check_admin_referer( 'activate-plugin_' . self::$request['plugin'] ) ) {
+			if (isset($_REQUEST['plugin'])) {
+				if (!check_admin_referer('activate-plugin_' . self::$request['plugin'])) {
 					exit;
 				}
-			} elseif ( isset( $_REQUEST['checked'] ) ) {
-				if ( ! check_admin_referer( 'bulk-plugins' ) ) {
+			} elseif (isset($_REQUEST['checked'])) {
+				if (!check_admin_referer('bulk-plugins')) {
 					exit;
 				}
 			}
@@ -76,7 +78,7 @@ class Coupon_Activator {
 		$version = self::$version;
 		$charset_collate = $wpdb->get_charset_collate();
 
-		if ( $wpdb->get_var( "SHOW TABLES LIKE '{$table_name}'" ) != $table_name ) {
+		if ($wpdb->get_var("SHOW TABLES LIKE '{$table_name}'") != $table_name) {
 
 			$sql = "CREATE TABLE $table_name (
 				`ID` BIGINT UNSIGNED NOT NULL,
@@ -95,9 +97,9 @@ class Coupon_Activator {
 				PRIMARY KEY (`oms_coupon_id`, `user_id`)
     		) $charset_collate;";
 
-			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-			dbDelta( $sql );
-			add_option( self::$plugin . '_version', $version );
+			require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+			dbDelta($sql);
+			add_option(self::$plugin . '_version', $version);
 		}
 	}
 
@@ -110,36 +112,34 @@ class Coupon_Activator {
 	 * @since    1.0.0
 	 * @return bool|array false or self::$request array.
 	 */
-	private static function get_request() {
-
-		if ( ! empty( $_REQUEST )
-			&& isset( $_REQUEST['_wpnonce'] )
-			&& isset( $_REQUEST['action'] )
+	private static function get_request()
+	{
+		if (
+			!empty($_REQUEST)
+			&& isset($_REQUEST['_wpnonce'])
+			&& isset($_REQUEST['action'])
 		) {
-			if ( isset( $_REQUEST['plugin'] ) ) {
-				if ( false !== wp_verify_nonce( sanitize_text_field( wp_unslash( $_REQUEST['_wpnonce'] ) ), 'activate-plugin_' . sanitize_text_field( wp_unslash( $_REQUEST['plugin'] ) ) ) ) {
+			if (isset($_REQUEST['plugin'])) {
+				if (false !== wp_verify_nonce(sanitize_text_field(wp_unslash($_REQUEST['_wpnonce'])), 'activate-plugin_' . sanitize_text_field(wp_unslash($_REQUEST['plugin'])))) {
 
-					self::$request['plugin'] = sanitize_text_field( wp_unslash( $_REQUEST['plugin'] ) );
-					self::$request['action'] = sanitize_text_field( wp_unslash( $_REQUEST['action'] ) );
+					self::$request['plugin'] = sanitize_text_field(wp_unslash($_REQUEST['plugin']));
+					self::$request['action'] = sanitize_text_field(wp_unslash($_REQUEST['action']));
 
 					return self::$request;
-
 				}
-			} elseif ( isset( $_REQUEST['checked'] ) ) {
-				if ( false !== wp_verify_nonce( sanitize_text_field( wp_unslash( $_REQUEST['_wpnonce'] ) ), 'bulk-plugins' ) ) {
+			} elseif (isset($_REQUEST['checked'])) {
+				if (false !== wp_verify_nonce(sanitize_text_field(wp_unslash($_REQUEST['_wpnonce'])), 'bulk-plugins')) {
 
-					self::$request['action'] = sanitize_text_field( wp_unslash( $_REQUEST['action'] ) );
-					self::$request['plugins'] = array_map( 'sanitize_text_field', wp_unslash( $_REQUEST['checked'] ) );
+					self::$request['action'] = sanitize_text_field(wp_unslash($_REQUEST['action']));
+					self::$request['plugins'] = array_map('sanitize_text_field', wp_unslash($_REQUEST['checked']));
 
 					return self::$request;
-
 				}
 			}
 		} else {
 
 			return false;
 		}
-
 	}
 
 	/**
@@ -151,24 +151,24 @@ class Coupon_Activator {
 	 * @param string $plugin The Plugin folder/name.php.
 	 * @return bool false if either plugin or action does not match, else true.
 	 */
-	private static function validate_request( $plugin ) {
-
-		if ( isset( self::$request['plugin'] )
+	private static function validate_request($plugin)
+	{
+		if (
+			isset(self::$request['plugin'])
 			&& $plugin === self::$request['plugin']
 			&& 'activate' === self::$request['action']
 		) {
 
 			return true;
-
-		} elseif ( isset( self::$request['plugins'] )
+		} elseif (
+			isset(self::$request['plugins'])
 			&& 'activate-selected' === self::$request['action']
-			&& in_array( $plugin, self::$request['plugins'] )
+			&& in_array($plugin, self::$request['plugins'])
 		) {
 			return true;
 		}
 
 		return false;
-
 	}
 
 	/**
@@ -179,15 +179,12 @@ class Coupon_Activator {
 	 * @since    1.0.0
 	 * @return bool false if no caps, else true.
 	 */
-	private static function check_caps() {
-
-		if ( current_user_can( 'activate_plugins' ) ) {
+	private static function check_caps()
+	{
+		if (current_user_can('activate_plugins')) {
 			return true;
 		}
 
 		return false;
-
 	}
-
 }
-

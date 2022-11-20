@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Register all actions and filters for the plugin
  *
@@ -20,8 +21,8 @@
  * @subpackage Coupon/includes
  * @author     lelinhtinh <lelinhtinh2013@gmail.com>
  */
-class Coupon_Loader {
-
+class Coupon_Loader
+{
 	/**
 	 * The array of actions registered with WordPress.
 	 *
@@ -54,12 +55,11 @@ class Coupon_Loader {
 	 *
 	 * @since    1.0.0
 	 */
-	public function __construct() {
-
+	public function __construct()
+	{
 		$this->actions      = array();
 		$this->filters      = array();
 		$this->shortcodes   = array();
-
 	}
 
 	/**
@@ -72,8 +72,9 @@ class Coupon_Loader {
 	 * @param    int    $priority         Optional. The priority at which the function should be fired. Default is 10.
 	 * @param    int    $accepted_args    Optional. The number of arguments that should be passed to the $callback. Default is 1.
 	 */
-	public function add_action( $hook, $component, $callback, $priority = 10, $accepted_args = 1 ) {
-		$this->actions = $this->add( $this->actions, $hook, $component, $callback, $priority, $accepted_args );
+	public function add_action($hook, $component, $callback, $priority = 10, $accepted_args = 1)
+	{
+		$this->actions = $this->add($this->actions, $hook, $component, $callback, $priority, $accepted_args);
 	}
 
 	/**
@@ -86,8 +87,9 @@ class Coupon_Loader {
 	 * @param    int    $priority         Optional. The priority at which the function should be fired. Default is 10.
 	 * @param    int    $accepted_args    Optional. The number of arguments that should be passed to the $callback. Default is 1.
 	 */
-	public function add_filter( $hook, $component, $callback, $priority = 10, $accepted_args = 1 ) {
-		$this->filters = $this->add( $this->filters, $hook, $component, $callback, $priority, $accepted_args );
+	public function add_filter($hook, $component, $callback, $priority = 10, $accepted_args = 1)
+	{
+		$this->filters = $this->add($this->filters, $hook, $component, $callback, $priority, $accepted_args);
 	}
 
 	/**
@@ -101,28 +103,29 @@ class Coupon_Loader {
 	 *
 	 * @return   $removed bool Whether the function is removed.
 	 */
-	public function remove_filter( $tag, $class_name = '', $method_to_remove = '', $priority = 10 ) {
-
+	public function remove_filter($tag, $class_name = '', $method_to_remove = '', $priority = 10)
+	{
 		global $wp_filter;
 		$removed = false;
 
-		foreach ( $wp_filter[ $tag ]->callbacks as $filter_priority => $filters ) {
+		foreach ($wp_filter[$tag]->callbacks as $filter_priority => $filters) {
 
-			if ( $filter_priority == $priority ) {
+			if ($filter_priority == $priority) {
 
-				foreach ( $filters as $filter ) {
+				foreach ($filters as $filter) {
 
-					if ( $filter['function'][1] == $method_to_remove
-						&& is_object( $filter['function'][0] ) // only WP 4.7 and above. This plugin is requiring at least WP 4.9.
-						&& $filter['function'][0] instanceof $class_name ) {
-						$removed = $wp_filter[ $tag ]->remove_filter( $tag, array( $filter['function'][0], $method_to_remove ), $priority );
+					if (
+						$filter['function'][1] == $method_to_remove
+						&& is_object($filter['function'][0]) // only WP 4.7 and above. This plugin is requiring at least WP 4.9.
+						&& $filter['function'][0] instanceof $class_name
+					) {
+						$removed = $wp_filter[$tag]->remove_filter($tag, array($filter['function'][0], $method_to_remove), $priority);
 					}
 				}
 			}
 		}
 
 		return $removed;
-
 	}
 
 	/**
@@ -136,8 +139,9 @@ class Coupon_Loader {
 	 *
 	 * @return   $removed bool Whether the function is removed.
 	 */
-	public function remove_action( $tag, $class_name = '', $method_to_remove = '', $priority = 10 ) {
-		return $this->remove_filter( $tag, $class_name, $method_to_remove, $priority );
+	public function remove_action($tag, $class_name = '', $method_to_remove = '', $priority = 10)
+	{
+		return $this->remove_filter($tag, $class_name, $method_to_remove, $priority);
 	}
 
 	/**
@@ -150,8 +154,9 @@ class Coupon_Loader {
 	 * @param    int    $priority         Optional. The priority at which the function should be fired. Default is 10.
 	 * @param    int    $accepted_args    Optional. The number of arguments that should be passed to the $callback. Default is 1.
 	 */
-	public function add_shortcode( $tag, $component, $callback, $priority = 10, $accepted_args = 1 ) {
-		$this->shortcodes = $this->add( $this->shortcodes, $tag, $component, $callback, $priority, $accepted_args );
+	public function add_shortcode($tag, $component, $callback, $priority = 10, $accepted_args = 1)
+	{
+		$this->shortcodes = $this->add($this->shortcodes, $tag, $component, $callback, $priority, $accepted_args);
 	}
 
 	/**
@@ -168,8 +173,8 @@ class Coupon_Loader {
 	 * @param    int    $accepted_args    The number of arguments that should be passed to the $callback.
 	 * @return   array                                  The collection of actions and filters registered with WordPress.
 	 */
-	private function add( $hooks, $hook, $component, $callback, $priority, $accepted_args ) {
-
+	private function add($hooks, $hook, $component, $callback, $priority, $accepted_args)
+	{
 		$hooks[] = array(
 			'hook'          => $hook,
 			'component'     => $component,
@@ -179,7 +184,6 @@ class Coupon_Loader {
 		);
 
 		return $hooks;
-
 	}
 
 	/**
@@ -187,20 +191,18 @@ class Coupon_Loader {
 	 *
 	 * @since    1.0.0
 	 */
-	public function run() {
-
-		foreach ( $this->filters as $hook ) {
-			add_filter( $hook['hook'], array( $hook['component'], $hook['callback'] ), $hook['priority'], $hook['accepted_args'] );
+	public function run()
+	{
+		foreach ($this->filters as $hook) {
+			add_filter($hook['hook'], array($hook['component'], $hook['callback']), $hook['priority'], $hook['accepted_args']);
 		}
 
-		foreach ( $this->actions as $hook ) {
-			add_action( $hook['hook'], array( $hook['component'], $hook['callback'] ), $hook['priority'], $hook['accepted_args'] );
+		foreach ($this->actions as $hook) {
+			add_action($hook['hook'], array($hook['component'], $hook['callback']), $hook['priority'], $hook['accepted_args']);
 		}
 
-		foreach ( $this->shortcodes as $hook ) {
-			add_shortcode( $hook['hook'], array( $hook['component'], $hook['callback'] ), $hook['priority'], $hook['accepted_args'] );
+		foreach ($this->shortcodes as $hook) {
+			add_shortcode($hook['hook'], array($hook['component'], $hook['callback']), $hook['priority'], $hook['accepted_args']);
 		}
-
 	}
-
 }
