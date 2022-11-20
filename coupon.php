@@ -43,7 +43,7 @@ define('COUPON_VERSION', '1.0.0');
 /**
  * Define the Plugin basename
  */
-define('COUPON_BASE_NAME', plugin_basename(__FILE__));
+define('COUPON_BASE_NAME', 'oms_coupon');
 
 /**
  * The code that runs during plugin activation.

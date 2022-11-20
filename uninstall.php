@@ -56,8 +56,9 @@ function oms_uninstall()
 	 * @see https://developer.wordpress.org/plugins/plugin-basics/uninstall-methods/#method-2-uninstall-php
 	 */
 	global $wpdb;
-	$table_name = $wpdb->prefix . COUPON_BASE_NAME;
+	$plugin_name = 'oms_coupon';
+	$table_name = $wpdb->prefix . $plugin_name;
 	$wpdb->query("DROP TABLE IF EXISTS {$table_name},{$table_name}_user;");
-	delete_option(COUPON_BASE_NAME . '_version');
+	delete_option($plugin_name . '_version');
 }
 oms_uninstall();
