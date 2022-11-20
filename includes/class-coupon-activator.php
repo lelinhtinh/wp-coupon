@@ -72,14 +72,11 @@ class Coupon_Activator
 		 * The plugin is now safely activated.
 		 * Perform your activation actions here.
 		 */
-
 		global $wpdb;
 		$table_name = $wpdb->prefix . self::$plugin;
-		$version = self::$version;
 		$charset_collate = $wpdb->get_charset_collate();
 
 		if ($wpdb->get_var("SHOW TABLES LIKE '{$table_name}'") != $table_name) {
-
 			$sql = "CREATE TABLE $table_name (
 				`ID` BIGINT UNSIGNED NOT NULL,
 				`code` VARCHAR(16) NOT NULL,
@@ -99,7 +96,7 @@ class Coupon_Activator
 
 			require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 			dbDelta($sql);
-			add_option(self::$plugin . '_version', $version);
+			add_option(self::$plugin . '_version', self::$version);
 		}
 	}
 

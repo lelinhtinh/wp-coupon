@@ -47,7 +47,6 @@ function oms_uninstall()
 		|| !check_ajax_referer('updates', '_ajax_nonce')
 		|| !current_user_can('activate_plugins')
 	) {
-
 		exit;
 	}
 
@@ -56,6 +55,9 @@ function oms_uninstall()
 	 *
 	 * @see https://developer.wordpress.org/plugins/plugin-basics/uninstall-methods/#method-2-uninstall-php
 	 */
+	global $wpdb;
+	$table_name = $wpdb->prefix . COUPON_BASE_NAME;
+	$wpdb->query("DROP TABLE IF EXISTS {$table_name},{$table_name}_user;");
+	delete_option(COUPON_BASE_NAME . '_version');
 }
-
 oms_uninstall();
