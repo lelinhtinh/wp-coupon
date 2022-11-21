@@ -1,31 +1,32 @@
 (function ($) {
   'use strict';
 
-  /**
-   * All of the code for your admin-facing JavaScript source
-   * should reside in this file.
-   *
-   * Note: It has been assumed you will write jQuery code here, so the
-   * $ function reference has been prepared for usage within the scope
-   * of this function.
-   *
-   * This enables you to define handlers, for when the DOM is ready:
-   *
-   * $(function() {
-   *
-   * });
-   *
-   * When the window is loaded:
-   *
-   * $( window ).on('load', function() {
-   *
-   * });
-   *
-   * ...and/or other possibilities.
-   *
-   * Ideally, it is not considered best practice to attach more than a
-   * single DOM-ready or window-load handler for a particular page.
-   * Although scripts in the WordPress core, Plugins and Themes may be
-   * practising this, we should strive to set a better example in our own work.
-   */
+  $(function () {
+    const $form = $('#oms_coupon_form');
+    const $helpText = $('#help_text');
+
+    $form.on('submit', (e) => {
+      e.preventDefault();
+      $helpText.text('');
+      $form[0].checkValidity();
+
+      const data = $form.serializeArray().reduce((curr, { name, value }) => {
+        curr[name] = value || null;
+        return curr;
+      }, {});
+
+      $.post(oms_coupon_admin_ajax.ajax_url, {
+        _ajax_nonce: oms_coupon_admin_ajax.nonce,
+        action: 'oms_coupon_create',
+        ...data,
+      })
+        .done((data) => {
+          $form[0].reset();
+          console.log('$form.on ~ data', data);
+        })
+        .catch((e) => {
+          $helpText.text(e?.responseJSON?.message ?? 'An unknown error');
+        });
+    });
+  });
 })(jQuery);

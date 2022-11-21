@@ -30,7 +30,7 @@ class Coupon_Activator
 	 * @access   private
 	 * @var      array    $request    The $_REQUEST array during plugin activation.
 	 */
-	private static $request = array();
+	private static $request = [];
 
 	/**
 	 * The $_REQUEST['plugin'] during plugin activation.
@@ -73,16 +73,16 @@ class Coupon_Activator
 		 * Perform your activation actions here.
 		 */
 		global $wpdb;
-		$table_name = $wpdb->prefix . self::$plugin;
+		$table_name = $wpdb->prefix . self::$plugin . 's';
 		$charset_collate = $wpdb->get_charset_collate();
 
 		if ($wpdb->get_var("SHOW TABLES LIKE '{$table_name}'") != $table_name) {
-			$sql = "CREATE TABLE $table_name (
-				`ID` BIGINT UNSIGNED NOT NULL,
+			$sql = "CREATE TABLE {$table_name} (
+				`ID` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 				`code` VARCHAR(16) NOT NULL,
 				`type` ENUM('percentage','numeric') NOT NULL DEFAULT 'percentage',
-				`value` INT UNSIGNED NULL DEFAULT 0,
-				`count` INT UNSIGNED NULL DEFAULT 0,
+				`value` INT UNSIGNED NULL DEFAULT NULL,
+				`limit` INT UNSIGNED NULL DEFAULT NULL,
 				`activated_at` TIMESTAMP NULL DEFAULT NULL,
 				`expired_at` TIMESTAMP NULL DEFAULT NULL,
 				PRIMARY KEY (`ID`),

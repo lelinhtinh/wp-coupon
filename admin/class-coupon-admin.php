@@ -73,7 +73,7 @@ class Coupon_Admin
 	 */
 	public function enqueue_styles($hook_suffix)
 	{
-		wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/coupon-admin.css', array(), $this->version, 'all');
+		wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/coupon-admin.css', [], $this->version, 'all');
 	}
 
 	/**
@@ -84,7 +84,21 @@ class Coupon_Admin
 	 */
 	public function enqueue_scripts($hook_suffix)
 	{
-		wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/coupon-admin.js', array('jquery'), $this->version, false);
+		if ($hook_suffix != 'wp-coupon/admin/partials/coupon-admin-display.php') {
+			return;
+		}
+
+		wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/coupon-admin.js', ['jquery'], $this->version, false);
+
+		$title_nonce = wp_create_nonce($this->plugin_prefix . $this->plugin_name . '_form');
+		wp_localize_script(
+			$this->plugin_name,
+			$this->plugin_prefix . $this->plugin_name . '_admin_ajax',
+			[
+				'ajax_url' => admin_url('admin-ajax.php'),
+				'nonce'    => $title_nonce,
+			]
+		);
 	}
 
 	public function options_page()
@@ -98,5 +112,52 @@ class Coupon_Admin
 			'dashicons-tickets-alt',
 			99
 		);
+	}
+
+	public function save_coupon()
+	{
+		check_ajax_referer($this->plugin_prefix . $this->plugin_name . '_form');
+		if (!$_POST['action'] || $_POST['action'] != 'oms_coupon_create' || !is_admin()) {
+			header('Status: 403 Forbidden', true, 403);
+			wp_die();
+		}
+
+		$user_id  = get_current_user_id();
+		$code = sanitize_key($_POST['code']);
+
+		global $wpdb;
+		$findOne = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}oms_coupons WHERE code = '{$code}'", OBJECT);
+		if (!is_null($findOne)) {
+			wp_send_json([
+				'status' => 'error',
+				'message' => 'Coupon code already exists'
+			], 400);
+		}
+
+		$type = in_array($_POST['type'], ['percentage', 'numeric']) ? $_POST['type'] : 'percentage';
+		$value = is_int($_POST['value']) ? $_POST['value'] : null;
+		$limit = is_int($_POST['limit']) ? $_POST['limit'] : null;
+		$activated_at = !empty($_POST['activated_at']) ? date($_POST['activated_at']) : null;
+		$expired_at = !empty($_POST['expired_at']) ? date($_POST['expired_at']) : null;
+
+		$insert_data = [
+			'code' => $code,
+			'type' => $type,
+			'value' => $value,
+			'limit' => $limit,
+			'activated_at' => $activated_at,
+			'expired_at' => $expired_at,
+		];
+		$wpdb->insert(
+			$wpdb->prefix . 'oms_coupons',
+			$insert_data,
+			['%s', '%s', '%d', '%d', '%s', '%s']
+		);
+		$insert_data['id'] = $wpdb->insert_id;
+
+		wp_send_json([
+			'status' => 'ok',
+			'data' => $insert_data
+		], 201);
 	}
 }
