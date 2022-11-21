@@ -139,6 +139,12 @@ class Coupon_Admin
 		$limit = is_int($_POST['limit']) ? $_POST['limit'] : null;
 		$activated_at = !empty($_POST['activated_at']) ? date($_POST['activated_at']) : null;
 		$expired_at = !empty($_POST['expired_at']) ? date($_POST['expired_at']) : null;
+		if ($activated_at > $expired_at) {
+			wp_send_json([
+				'status' => 'error',
+				'message' => 'Expiration Date must be after Activation Date'
+			], 422);
+		}
 
 		$insert_data = [
 			'code' => $code,
@@ -153,7 +159,7 @@ class Coupon_Admin
 			$insert_data,
 			['%s', '%s', '%d', '%d', '%s', '%s']
 		);
-		$insert_data['id'] = $wpdb->insert_id;
+		$insert_data['ID'] = $wpdb->insert_id;
 
 		wp_send_json([
 			'status' => 'ok',

@@ -85,8 +85,10 @@ class Coupon_Activator
 				`limit` INT UNSIGNED NULL DEFAULT NULL,
 				`activated_at` TIMESTAMP NULL DEFAULT NULL,
 				`expired_at` TIMESTAMP NULL DEFAULT NULL,
+				`active` TINYINT(3) UNSIGNED NULL DEFAULT '1',
 				PRIMARY KEY (`ID`),
 				UNIQUE INDEX `code` (`code`)
+				INDEX `active` (`active`)
     		) $charset_collate;
 			CREATE TABLE {$table_name}_user (
 				`oms_coupon_id` BIGINT UNSIGNED NOT NULL,

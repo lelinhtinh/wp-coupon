@@ -11,7 +11,6 @@
  * @package    Coupon
  * @subpackage Coupon/admin/partials
  */
-
 ?>
 <?php
 $min_date = date("Y-m-d");
@@ -63,5 +62,17 @@ $max_datetime = $max_date . "T" . $max_time;
             &nbsp;&nbsp;&nbsp;&nbsp;
             <span class="file-error" id="help_text"></span>
         </p>
+    </form>
+</div>
+
+<?php
+require dirname(__FILE__) . '/coupon-list-table.php';
+$coupon_list_table = new Coupon_List_Table();
+$coupon_list_table->prepare_items();
+?>
+<div class="wrap">
+    <form id="movies-filter" method="get">
+        <input type="hidden" name="page" value="<?php echo $_REQUEST['page'] ?>" />
+        <?php $coupon_list_table->display() ?>
     </form>
 </div>
