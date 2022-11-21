@@ -72,7 +72,7 @@ class Coupon_Public
 	 */
 	public function enqueue_styles()
 	{
-		wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/coupon-public.css', array(), $this->version, 'all');
+		wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/coupon-public.css', [], $this->version, 'all');
 	}
 
 	/**
@@ -82,7 +82,7 @@ class Coupon_Public
 	 */
 	public function enqueue_scripts()
 	{
-		wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/coupon-public.js', array('jquery'), $this->version, true);
+		wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/coupon-public.js', ['jquery'], $this->version, true);
 	}
 
 	/**
@@ -109,9 +109,9 @@ class Coupon_Public
 		 * @see https://developer.wordpress.org/reference/hooks/shortcode_atts_shortcode/
 		 */
 		$atts = shortcode_atts(
-			array(
+			[
 				'attribute' => 123,
-			),
+			],
 			$atts,
 			$this->plugin_prefix . 'shortcode'
 		);

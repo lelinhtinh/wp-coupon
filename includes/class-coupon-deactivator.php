@@ -30,7 +30,7 @@ class Coupon_Deactivator
 	 * @access   private
 	 * @var      array    $request    The $_REQUEST array during plugin activation.
 	 */
-	private static $request = array();
+	private static $request = [];
 
 	/**
 	 * The $_REQUEST['plugin'] during plugin activation.
