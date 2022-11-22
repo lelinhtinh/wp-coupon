@@ -82,7 +82,8 @@ class Coupon_Public
 	 */
 	public function enqueue_scripts()
 	{
-		wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/coupon-public.js', ['jquery'], $this->version, true);
+		wp_enqueue_script('goodtimer', plugin_dir_url(__FILE__) . 'js/goodtimer-3.4.0.js', [], '3.4.0', true);
+		wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/coupon-public.js', ['jquery', 'goodtimer'], $this->version, true);
 	}
 
 	/**
@@ -98,7 +99,7 @@ class Coupon_Public
 	 * @param    mixed  $content ShortCode enclosed content.
 	 * @param    string $tag    The Shortcode tag.
 	 */
-	public function oms_shortcode_func($atts, $content = null, $tag)
+	public function oms_shortcode_func($atts = [], $content = null, $tag = '')
 	{
 		/**
 		 * Combine user attributes with known attributes.
@@ -110,10 +111,11 @@ class Coupon_Public
 		 */
 		$atts = shortcode_atts(
 			[
-				'attribute' => 123,
+				"style" => "text",
+				"id" => null,
 			],
 			$atts,
-			$this->plugin_prefix . 'shortcode'
+			$this->plugin_prefix . $this->plugin_name
 		);
 
 		/**
@@ -123,17 +125,60 @@ class Coupon_Public
 		 *
 		 * @see https://developer.wordpress.org/themes/theme-security/data-sanitization-escaping/
 		 */
-		$out = intval($atts['attribute']);
+		$id = intval($atts['id']);
 
-		/**
-		 * If the shortcode is enclosing, we may want to do something with $content
-		 */
-		if (!is_null($content) && !empty($content)) {
-			$out = do_shortcode($content); // We can parse shortcodes inside $content.
-			$out = intval($atts['attribute']) . ' ' . sanitize_text_field($out); // Remember to sanitize your user input.
+		global $wpdb;
+		$coupon = $wpdb->get_row("
+			SELECT c.ID, c.code, c.type, c.value, c.limit, c.activated_at, c.expired_at, COUNT(u.ID) AS number_of_uses
+			FROM {$wpdb->prefix}oms_coupons AS c
+			LEFT JOIN {$wpdb->prefix}oms_coupons_user AS cu ON cu.oms_coupon_id = c.ID
+			LEFT JOIN {$wpdb->prefix}users AS u ON cu.user_id = u.ID
+			WHERE c.active = 1 AND c.ID = {$id} AND ( c.expired_at IS NULL OR ( c.expired_at IS NOT NULL AND c.expired_at > CURDATE() ) )
+			GROUP BY c.ID, c.code, c.type, c.value, c.limit, c.activated_at, c.expired_at
+		", OBJECT);
+
+		if (
+			is_null($coupon)
+			|| (!is_null($coupon->expired_at) && wp_strtotime($coupon->expired_at) <= time())
+			|| $coupon->limit === $coupon->number_of_uses
+		) {
+			return sprintf(
+				'<p><em class="status-error">Coupon not available</em></p>',
+				$id
+			);
 		}
 
-		// ShortCodes are filters and should always return, never echo.
-		return $out;
+		$outData = [
+			'code' => $coupon->code,
+			'type' => $coupon->type,
+			'value' => $coupon->value,
+			'limit' => intval($coupon->limit),
+			'number_of_uses' => intval($coupon->number_of_uses),
+			'activated_at' => is_null($coupon->activated_at) ? '' : wp_strtotime($coupon->activated_at) - time(),
+			'expired_at' => is_null($coupon->expired_at) ? '' : wp_strtotime($coupon->expired_at),
+		];
+
+		$remaining = $outData['limit'] - $outData['number_of_uses'];
+		return sprintf(
+			<<<EOL
+				<div class="oms-coupon-wrapper" data-id="%1\$d" data-activation-time="%3\$d" data-expiration-time="%4\$d">
+					<div class="oms-coupon-content">
+					<div class="oms-coupon-code">%2\$s</div>
+						<div class="oms-coupon-discount">%5\$s</div>
+						<div class="oms-coupon-remaining">Remaining uses: <strong>%6\$d</strong></div>
+					</div>
+					<div class="oms-coupon-save">
+						<button class="oms-coupon-save-btn" data-id="%1\$d">Save</button>
+					</div>
+					<div class="oms-coupon-timer"></div>
+				</div>
+			EOL,
+			$id,
+			$outData['code'],
+			$outData['activated_at'],
+			$outData['expired_at'],
+			get_discount_string($outData),
+			$remaining,
+		);
 	}
 }

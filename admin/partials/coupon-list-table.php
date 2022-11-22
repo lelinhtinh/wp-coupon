@@ -37,11 +37,11 @@ class Coupon_List_Table extends WP_List_Table
     public function __construct()
     {
         // Set parent defaults.
-        parent::__construct(array(
+        parent::__construct([
             'singular' => 'coupon',    // Singular name of the listed records.
             'plural'   => 'coupons',   // Plural name of the listed records.
             'ajax'     => false,       // Does this table support ajax?
-        ));
+        ]);
     }
 
     /**
@@ -62,7 +62,7 @@ class Coupon_List_Table extends WP_List_Table
      */
     public function get_columns()
     {
-        $columns = array(
+        $columns = [
             'cb'             => '<input type="checkbox" />',   // Render a checkbox instead of text.
             'code'           => 'Coupon Code',
             'value'          => 'Discount',
@@ -71,7 +71,7 @@ class Coupon_List_Table extends WP_List_Table
             'expired_at'     => 'Expiration Date',
             'number_of_uses' => 'N. Uses',
             'used_by'        => 'Used By',
-        );
+        ];
 
         return $columns;
     }
@@ -80,7 +80,7 @@ class Coupon_List_Table extends WP_List_Table
      * Get a list of sortable columns. The format is:
      * 'internal-name' => 'orderby'
      * or
-     * 'internal-name' => array( 'orderby', true )
+     * 'internal-name' => ['orderby', true]
      *
      * The second format will make the initial sorting order be descending
      *
@@ -99,13 +99,13 @@ class Coupon_List_Table extends WP_List_Table
      */
     protected function get_sortable_columns()
     {
-        $sortable_columns = array(
-            'code'         => array('code', false),
-            'value'        => array('value', false),
-            'limit'        => array('limit', false),
-            'activated_at' => array('activated_at', false),
-            'expired_at'   => array('expired_at', false),
-        );
+        $sortable_columns = [
+            'code'         => ['code', false],
+            'value'        => ['value', false],
+            'limit'        => ['limit', false],
+            'activated_at' => ['activated_at', false],
+            'expired_at'   => ['expired_at', false],
+        ];
 
         return $sortable_columns;
     }
@@ -190,11 +190,11 @@ class Coupon_List_Table extends WP_List_Table
         $page = wp_unslash($_REQUEST['page']); // WPCS: Input var ok.
 
         // Build hide row action.
-        $hide_query_args = array(
+        $hide_query_args = [
             'page'   => $page,
             'action' => 'hide',
             'coupon_id'  => $item['ID'],
-        );
+        ];
 
         $actions['hide'] = sprintf(
             '<a href="%1$s">%2$s</a>',
@@ -203,11 +203,11 @@ class Coupon_List_Table extends WP_List_Table
         );
 
         // Build delete row action.
-        $delete_query_args = array(
+        $delete_query_args = [
             'page'   => $page,
             'action' => 'delete',
             'coupon_id'  => $item['ID'],
-        );
+        ];
 
         $actions['delete'] = sprintf(
             '<a href="%1$s">%2$s</a>',
@@ -219,7 +219,7 @@ class Coupon_List_Table extends WP_List_Table
         return sprintf(
             '<span class="oms-coupon-code%1$s%2$s">%3$s</span> <span data-id="%4$d" title="Click to Copy" class="oms-coupon-shortcode">[oms_coupon id="%4$d"]</span>%5$s',
             empty($item['limit']) || intval($item['limit']) > intval($item['number_of_uses']) ? '' : ' status-warning',
-            !empty($item['expired_at']) && strtotime($item['expired_at']) < time()  ? ' status-error' : '',
+            !empty($item['expired_at']) && wp_strtotime($item['expired_at']) < wp_strtotime('now')  ? ' status-error' : '',
             $item['code'],
             $item['ID'],
             $this->row_actions($actions)
@@ -248,24 +248,18 @@ class Coupon_List_Table extends WP_List_Table
     {
         return sprintf(
             '<span class="oms-coupon-expired_at%1$s">%2$s</span>',
-            !empty($item['expired_at']) && strtotime($item['expired_at']) < time()  ? ' status-error' : '',
+            !empty($item['expired_at']) && wp_strtotime($item['expired_at']) < wp_strtotime('now')  ? ' status-error' : '',
             $item['expired_at'],
         );
     }
 
     protected function column_value($item)
     {
-        $currency_symbol = '₫';
-        return empty($item['value'])
-            ? ''
-            : ($item['type'] === 'numeric'
-                ? number_format($item['value'], 0, '', ',')
-                : $item['value']
-            ) . ($item['type'] === 'numeric' ? $currency_symbol : '%');
+        return get_discount_string($item);
     }
 
     /**
-     * Get an associative array ( option_name => option_code ) with the list
+     * Get an associative [option_name => option_code] with the list
      * of bulk actions available on this table.
      *
      * Optional. If you need to include bulk actions in your list table, this is
@@ -283,10 +277,10 @@ class Coupon_List_Table extends WP_List_Table
      */
     protected function get_bulk_actions()
     {
-        $actions = array(
+        $actions = [
             'hide' => _x('Hide', 'List table bulk action', 'wp-list-table-hide'),
             'delete' => _x('Delete', 'List table bulk action', 'wp-list-table-delete'),
-        );
+        ];
 
         return $actions;
     }
@@ -369,7 +363,7 @@ class Coupon_List_Table extends WP_List_Table
 		 * three other arrays. One for all columns, one for hidden columns, and one
 		 * for sortable columns.
 		 */
-        $this->_column_headers = array($columns, $hidden, $sortable);
+        $this->_column_headers = [$columns, $hidden, $sortable];
 
         /**
          * Optional. You can handle your bulk actions however you see fit. In this
@@ -407,10 +401,10 @@ class Coupon_List_Table extends WP_List_Table
         /**
          * REQUIRED. We also have to register our pagination options & calculations.
          */
-        $this->set_pagination_args(array(
+        $this->set_pagination_args([
             'total_items' => $total_items,                     // WE have to calculate the total number of items.
             'per_page'    => $per_page,                        // WE have to determine how many items to show on a page.
-            'total_pages' => ceil($total_items / $per_page), // WE have to calculate the total number of pages.
-        ));
+            'total_pages' => ceil($total_items / $per_page),   // WE have to calculate the total number of pages.
+        ]);
     }
 }

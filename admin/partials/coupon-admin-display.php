@@ -17,7 +17,7 @@ $min_date = date("Y-m-d");
 $min_time = date("h:i");
 $min_datetime = $min_date . "T" . $min_time;
 
-$max_date = date("Y-m-d", strtotime("+7 Days"));
+$max_date = date("Y-m-d", wp_strtotime("+7 Days"));
 $max_time = date("h:i");
 $max_datetime = $max_date . "T" . $max_time;
 ?>
