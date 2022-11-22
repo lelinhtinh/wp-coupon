@@ -135,8 +135,8 @@ class Coupon_Admin
 		}
 
 		$type = in_array($_POST['type'], ['percentage', 'numeric']) ? $_POST['type'] : 'percentage';
-		$value = is_int($_POST['value']) ? $_POST['value'] : null;
-		$limit = is_int($_POST['limit']) ? $_POST['limit'] : null;
+		$value = !empty($_POST['value']) ? intval($_POST['value']) : null;
+		$limit = !empty($_POST['limit']) ? intval($_POST['limit']) : null;
 		$activated_at = !empty($_POST['activated_at']) ? date($_POST['activated_at']) : null;
 		$expired_at = !empty($_POST['expired_at']) ? date($_POST['expired_at']) : null;
 		if ($activated_at > $expired_at) {

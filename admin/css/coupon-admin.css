@@ -2,3 +2,23 @@
  * All of the CSS for your admin-specific functionality should be
  * included in this file.
  */
+.status-success {
+  color: #00a32a;
+}
+
+.status-warning {
+  color: #dba617;
+}
+
+.status-error {
+  color: #d63638;
+}
+
+.status-info {
+  color: #72aee6;
+}
+
+.oms-coupon-code {
+  text-transform: uppercase;
+  font-weight: 700;
+}

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * WP List Table Example class
  *
@@ -20,7 +21,7 @@
  * then call $yourInstance->prepare_items() to handle any data manipulation, then
  * finally call $yourInstance->display() to render the table to the page.
  *
- * Our topic for this list table is going to be movies.
+ * Our topic for this list table is going to be coupons.
  *
  * @package WPListTableExample
  * @author  Matt van Andel
@@ -62,12 +63,14 @@ class Coupon_List_Table extends WP_List_Table
     public function get_columns()
     {
         $columns = array(
-            'cb'           => '<input type="checkbox" />',   // Render a checkbox instead of text.
-            'code'         => 'Coupon Code',
-            'value'        => 'Discount',
-            'limit'        => 'Usage Limit',
-            'activated_at' => 'Activation Date',
-            'expired_at'   => 'Expiration Date',
+            'cb'             => '<input type="checkbox" />',   // Render a checkbox instead of text.
+            'code'           => 'Coupon Code',
+            'value'          => 'Discount',
+            'limit'          => 'Usage Limit',
+            'activated_at'   => 'Activation Date',
+            'expired_at'     => 'Expiration Date',
+            'number_of_uses' => 'N. Uses',
+            'used_by'        => 'Used By',
         );
 
         return $columns;
@@ -134,12 +137,13 @@ class Coupon_List_Table extends WP_List_Table
     {
         switch ($column_name) {
             case 'code':
+            case 'value':
             case 'limit':
             case 'activated_at':
             case 'expired_at':
+            case 'number_of_uses':
+            case 'used_by':
                 return $item[$column_name];
-            case 'value':
-                return empty($item[$column_name]) ? '' : $item[$column_name] . ($item['type'] == 'numeric' ? '' : '%');
             default:
                 return print_r($item, true); // Show the whole array for troubleshooting purposes.
         }
@@ -159,7 +163,7 @@ class Coupon_List_Table extends WP_List_Table
     {
         return sprintf(
             '<input type="checkbox" name="%1$s[]" value="%2$s" />',
-            $this->_args['singular'],  // Let's simply repurpose the table's singular label ("movie").
+            $this->_args['singular'],  // Let's simply repurpose the table's singular label ("coupon").
             $item['ID']                // The value of the checkbox should be the record's ID.
         );
     }
@@ -185,39 +189,79 @@ class Coupon_List_Table extends WP_List_Table
     {
         $page = wp_unslash($_REQUEST['page']); // WPCS: Input var ok.
 
-        // Build edit row action.
-        $edit_query_args = array(
+        // Build hide row action.
+        $hide_query_args = array(
             'page'   => $page,
-            'action' => 'edit',
-            'movie'  => $item['ID'],
+            'action' => 'hide',
+            'coupon'  => $item['ID'],
         );
 
-        $actions['edit'] = sprintf(
+        $actions['hide'] = sprintf(
             '<a href="%1$s">%2$s</a>',
-            esc_url(wp_nonce_url(add_query_arg($edit_query_args, 'admin.php'), 'editmovie_' . $item['ID'])),
-            _x('Edit', 'List table row action', 'wp-list-table-example')
+            esc_url(wp_nonce_url(add_query_arg($hide_query_args, 'admin.php'), 'hidecoupon_' . $item['ID'])),
+            _x('Hide', 'List table row action', 'wp-list-table-hide')
         );
 
         // Build delete row action.
         $delete_query_args = array(
             'page'   => $page,
             'action' => 'delete',
-            'movie'  => $item['ID'],
+            'coupon'  => $item['ID'],
         );
 
         $actions['delete'] = sprintf(
             '<a href="%1$s">%2$s</a>',
-            esc_url(wp_nonce_url(add_query_arg($delete_query_args, 'admin.php'), 'deletemovie_' . $item['ID'])),
-            _x('Delete', 'List table row action', 'wp-list-table-example')
+            esc_url(wp_nonce_url(add_query_arg($delete_query_args, 'admin.php'), 'deletecoupon_' . $item['ID'])),
+            _x('Delete', 'List table row action', 'wp-list-table-delete')
         );
 
         // Return the code contents.
         return sprintf(
-            '%1$s <span style="color:silver;">(id:%2$s)</span>%3$s',
+            '<span class="oms-coupon-code%1$s%2$s">%3$s</span> <span style="color:silver;">(id:%4$s)</span>%5$s',
+            empty($item['limit']) || intval($item['limit']) > intval($item['number_of_uses']) ? '' : ' status-warning',
+            !empty($item['expired_at']) && strtotime($item['expired_at']) < time()  ? ' status-error' : '',
             $item['code'],
             $item['ID'],
             $this->row_actions($actions)
         );
+    }
+
+    protected function column_limit($item)
+    {
+        return sprintf(
+            '<span class="oms-coupon-limit%1$s">%2$s</span>',
+            empty($item['limit']) || intval($item['limit']) > intval($item['number_of_uses']) ? '' : ' status-warning',
+            $item['limit'],
+        );
+    }
+
+    protected function column_number_of_uses($item)
+    {
+        return sprintf(
+            '<span class="oms-coupon-number_of_uses%1$s">%2$s</span>',
+            empty($item['limit']) || intval($item['limit']) > intval($item['number_of_uses']) ? '' : ' status-warning',
+            $item['number_of_uses'],
+        );
+    }
+
+    protected function column_expired_at($item)
+    {
+        return sprintf(
+            '<span class="oms-coupon-expired_at%1$s">%2$s</span>',
+            !empty($item['expired_at']) && strtotime($item['expired_at']) < time()  ? ' status-error' : '',
+            $item['expired_at'],
+        );
+    }
+
+    protected function column_value($item)
+    {
+        $currency_symbol = '₫';
+        return empty($item['value'])
+            ? ''
+            : ($item['type'] === 'numeric'
+                ? number_format($item['value'], 0, '', ',')
+                : $item['value']
+            ) . ($item['type'] === 'numeric' ? $currency_symbol : '%');
     }
 
     /**
@@ -240,7 +284,8 @@ class Coupon_List_Table extends WP_List_Table
     protected function get_bulk_actions()
     {
         $actions = array(
-            'delete' => _x('Delete', 'List table bulk action', 'wp-list-table-example'),
+            'hide' => _x('Hide', 'List table bulk action', 'wp-list-table-hide'),
+            'delete' => _x('Delete', 'List table bulk action', 'wp-list-table-delete'),
         );
 
         return $actions;
@@ -257,9 +302,17 @@ class Coupon_List_Table extends WP_List_Table
      */
     protected function process_bulk_action()
     {
-        // Detect when a bulk action is being triggered.
-        if ('delete' === $this->current_action()) {
-            wp_die('Items deleted (or they would be if we had items to delete)!');
+        global $wpdb;
+        $ids = is_array($_GET['coupon']) ? implode(',', $_GET['coupon']) : $_GET['coupon'];
+        switch ($this->current_action()) {
+            case 'hide':
+                $wpdb->query("UPDATE {$wpdb->prefix}oms_coupons SET active = 0 WHERE ID IN($ids)");
+                break;
+            case 'delete':
+                $wpdb->query("DELETE FROM {$wpdb->prefix}oms_coupons WHERE ID IN($ids)");
+                break;
+            default:
+                break;
         }
     }
 
@@ -282,12 +335,19 @@ class Coupon_List_Table extends WP_List_Table
      */
     function prepare_items()
     {
-        global $wpdb; //This is used only if making any database queries
+        global $wpdb;
 
-        /*
-		 * First, lets decide how many records per page to show
-		 */
-        $per_page = 5;
+        /**
+         * REQUIRED for pagination.
+         */
+        $per_page = 10;
+        $current_page = $this->get_pagenum();
+        $offset_page = ($current_page - 1) * $per_page;
+
+        /**
+         * Total active coupons.
+         */
+        $total_items = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}oms_coupons WHERE active = 1");
 
         /*
 		 * REQUIRED. Now we need to define our column headers. This includes a complete
@@ -314,63 +374,26 @@ class Coupon_List_Table extends WP_List_Table
          */
         $this->process_bulk_action();
 
+        // If no sort, default to ID.
+        $orderby = !empty($_REQUEST['orderby']) ? wp_unslash($_REQUEST['orderby']) : 'ID'; // WPCS: Input var ok.
+        // If no order, default to asc.
+        $order = !empty($_REQUEST['order']) ? wp_unslash($_REQUEST['order']) : 'desc'; // WPCS: Input var ok.
+
         /*
 		 * GET THE DATA!
-		 *
-		 * Instead of querying a database, we're going to fetch the example data
-		 * property we created for use in this plugin. This makes this example
-		 * package slightly different than one you might build on your own. In
-		 * this example, we'll be using array manipulation to sort and paginate
-		 * our dummy data.
-		 *
-		 * In a real-world situation, this is probably where you would want to
-		 * make your actual database query. Likewise, you will probably want to
-		 * use any posted sort or pagination data to build a custom query instead,
-		 * as you'll then be able to use the returned query data immediately.
-		 *
-		 * For information on making queries in WordPress, see this Codex entry:
-		 * http://codex.wordpress.org/Class_Reference/wpdb
 		 */
         $data = $wpdb->get_results("
-            SELECT *
-            FROM {$wpdb->prefix}oms_coupons
-            WHERE active = 1
+            SELECT
+                c.ID, c.code, c.type, c.value, c.limit, c.activated_at, c.expired_at,
+                GROUP_CONCAT(u.display_name SEPARATOR ', ') AS used_by, COUNT(u.ID) AS number_of_uses
+            FROM {$wpdb->prefix}oms_coupons AS c
+            LEFT JOIN {$wpdb->prefix}oms_coupon_user AS cu ON cu.oms_coupon_id = c.ID
+            LEFT JOIN {$wpdb->prefix}users AS u ON cu.user_id = u.ID
+            WHERE c.active = 1
+            GROUP BY c.ID, c.code, c.type, c.value, c.limit, c.activated_at, c.expired_at
+            ORDER BY c.{$orderby} {$order}
+            LIMIT {$per_page} OFFSET {$offset_page}
         ", ARRAY_A);
-
-        /*
-		 * This checks for sorting input and sorts the data in our array of dummy
-		 * data accordingly (using a custom usort_reorder() function). It's for
-		 * example purposes only.
-		 *
-		 * In a real-world situation involving a database, you would probably want
-		 * to handle sorting by passing the 'orderby' and 'order' values directly
-		 * to a custom query. The returned data will be pre-sorted, and this array
-		 * sorting technique would be unnecessary. In other words: remove this when
-		 * you implement your own query.
-		 */
-        usort($data, array($this, 'usort_reorder'));
-
-        /*
-		 * REQUIRED for pagination. Let's figure out what page the user is currently
-		 * looking at. We'll need this later, so you should always include it in
-		 * your own package classes.
-		 */
-        $current_page = $this->get_pagenum();
-
-        /*
-		 * REQUIRED for pagination. Let's check how many items are in our data array.
-		 * In real-world use, this would be the total number of items in your database,
-		 * without filtering. We'll need this later, so you should always include it
-		 * in your own package classes.
-		 */
-        $total_items = count($data);
-
-        /*
-		 * The WP_List_Table class does not handle pagination for us, so we need
-		 * to ensure that the data is trimmed to only the current page. We can use
-		 * array_slice() to do that.
-		 */
-        $data = array_slice($data, (($current_page - 1) * $per_page), $per_page);
 
         /*
 		 * REQUIRED. Now we can add our *sorted* data to the items property, where
@@ -386,27 +409,5 @@ class Coupon_List_Table extends WP_List_Table
             'per_page'    => $per_page,                        // WE have to determine how many items to show on a page.
             'total_pages' => ceil($total_items / $per_page), // WE have to calculate the total number of pages.
         ));
-    }
-
-    /**
-     * Callback to allow sorting of example data.
-     *
-     * @param string $a First value.
-     * @param string $b Second value.
-     *
-     * @return int
-     */
-    protected function usort_reorder($a, $b)
-    {
-        // If no sort, default to code.
-        $orderby = !empty($_REQUEST['orderby']) ? wp_unslash($_REQUEST['orderby']) : 'code'; // WPCS: Input var ok.
-
-        // If no order, default to asc.
-        $order = !empty($_REQUEST['order']) ? wp_unslash($_REQUEST['order']) : 'asc'; // WPCS: Input var ok.
-
-        // Determine sort order.
-        $result = strcmp($a[$orderby], $b[$orderby]);
-
-        return ('asc' === $order) ? $result : -$result;
     }
 }
