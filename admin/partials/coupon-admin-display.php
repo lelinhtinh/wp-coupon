@@ -35,7 +35,7 @@ $max_datetime = $max_date . "T" . $max_time;
                 </tr>
                 <tr>
                     <th scope="row"><label for="limit">Usage Limit <code class="status-error" title="Require">*</code></label></th>
-                    <td colspan="2"><input name="limit" type="number" min="0" step="1" id="limit" value="1" class="small-text" required /></td>
+                    <td colspan="2"><input name="limit" type="number" min="0" step="1" id="limit" value="" class="small-text" required /></td>
                 </tr>
                 <tr>
                     <th scope="row"><label for="type">Discount Value</label></th>

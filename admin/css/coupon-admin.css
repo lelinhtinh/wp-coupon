@@ -22,3 +22,13 @@
   text-transform: uppercase;
   font-weight: 700;
 }
+
+.oms-coupon-shortcode {
+  color: silver;
+  cursor: pointer;
+}
+
+.oms-coupon-shortcode:focus,
+.oms-coupon-shortcode:hover {
+  color: #135e96;
+}

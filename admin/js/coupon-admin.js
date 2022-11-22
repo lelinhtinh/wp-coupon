@@ -8,6 +8,26 @@
     const $code = $('#code');
     const currencySymbol = '₫';
 
+    $list.on('click', '.oms-coupon-shortcode', (e) => {
+      e.preventDefault();
+      const $shortcode = $(e.target);
+      const shortcodeContent = $shortcode.text();
+
+      navigator.clipboard
+        .writeText(`[oms_coupon id="${$shortcode.data('id')}"]`)
+        .then(
+          () => {
+            $shortcode.text('Coppied!');
+            setTimeout(() => {
+              $shortcode.text(shortcodeContent);
+            }, 400);
+          },
+          () => {
+            window.getSelection().selectAllChildren(e.target);
+          }
+        );
+    });
+
     $form.on('submit', (e) => {
       e.preventDefault();
       $helpText.text('');
@@ -39,7 +59,7 @@
     data-colname="Coupon Code"
   >
     <span class="oms-coupon-code">${code}</span>
-    <span style="color: silver">(id:${ID})</span>
+    <span data-id="${ID}" title="Click to Copy" class="oms-coupon-shortcode">[oms_coupon id="${ID}"]</span>
     <div class="row-actions">
       <span class="hide">
         <a

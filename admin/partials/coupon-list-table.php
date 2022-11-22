@@ -217,7 +217,7 @@ class Coupon_List_Table extends WP_List_Table
 
         // Return the code contents.
         return sprintf(
-            '<span class="oms-coupon-code%1$s%2$s">%3$s</span> <span style="color:silver;">(id:%4$s)</span>%5$s',
+            '<span class="oms-coupon-code%1$s%2$s">%3$s</span> <span data-id="%4$d" title="Click to Copy" class="oms-coupon-shortcode">[oms_coupon id="%4$d"]</span>%5$s',
             empty($item['limit']) || intval($item['limit']) > intval($item['number_of_uses']) ? '' : ' status-warning',
             !empty($item['expired_at']) && strtotime($item['expired_at']) < time()  ? ' status-error' : '',
             $item['code'],
@@ -229,7 +229,7 @@ class Coupon_List_Table extends WP_List_Table
     protected function column_limit($item)
     {
         return sprintf(
-            '<span class="oms-coupon-limit%1$s">%2$s</span>',
+            '<span class="oms-coupon-limit%1$s">%2$d</span>',
             empty($item['limit']) || intval($item['limit']) > intval($item['number_of_uses']) ? '' : ' status-warning',
             $item['limit'],
         );
@@ -238,7 +238,7 @@ class Coupon_List_Table extends WP_List_Table
     protected function column_number_of_uses($item)
     {
         return sprintf(
-            '<span class="oms-coupon-number_of_uses%1$s">%2$s</span>',
+            '<span class="oms-coupon-number_of_uses%1$s">%2$d</span>',
             empty($item['limit']) || intval($item['limit']) > intval($item['number_of_uses']) ? '' : ' status-warning',
             $item['number_of_uses'],
         );
