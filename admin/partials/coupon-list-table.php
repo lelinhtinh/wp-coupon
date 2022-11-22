@@ -193,7 +193,7 @@ class Coupon_List_Table extends WP_List_Table
         $hide_query_args = array(
             'page'   => $page,
             'action' => 'hide',
-            'coupon'  => $item['ID'],
+            'coupon_id'  => $item['ID'],
         );
 
         $actions['hide'] = sprintf(
@@ -206,7 +206,7 @@ class Coupon_List_Table extends WP_List_Table
         $delete_query_args = array(
             'page'   => $page,
             'action' => 'delete',
-            'coupon'  => $item['ID'],
+            'coupon_id'  => $item['ID'],
         );
 
         $actions['delete'] = sprintf(
@@ -303,16 +303,19 @@ class Coupon_List_Table extends WP_List_Table
     protected function process_bulk_action()
     {
         global $wpdb;
-        $ids = is_array($_GET['coupon']) ? implode(',', $_GET['coupon']) : $_GET['coupon'];
-        switch ($this->current_action()) {
-            case 'hide':
-                $wpdb->query("UPDATE {$wpdb->prefix}oms_coupons SET active = 0 WHERE ID IN($ids)");
-                break;
-            case 'delete':
-                $wpdb->query("DELETE FROM {$wpdb->prefix}oms_coupons WHERE ID IN($ids)");
-                break;
-            default:
-                break;
+        if (isset($_GET['coupon_id'])) {
+            $ids = is_array($_GET['coupon_id']) ? implode(',', $_GET['coupon_id']) : $_GET['coupon_id'];
+            switch ($this->current_action()) {
+                case 'hide':
+                    $wpdb->query("UPDATE {$wpdb->prefix}oms_coupons SET active = 0 WHERE ID IN($ids)");
+                    break;
+                case 'delete':
+                    $wpdb->query("DELETE FROM {$wpdb->prefix}oms_coupons WHERE ID IN($ids)");
+                    $wpdb->query("DELETE FROM {$wpdb->prefix}oms_coupons_user WHERE oms_coupon_id IN($ids)");
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
@@ -387,7 +390,7 @@ class Coupon_List_Table extends WP_List_Table
                 c.ID, c.code, c.type, c.value, c.limit, c.activated_at, c.expired_at,
                 GROUP_CONCAT(u.display_name SEPARATOR ', ') AS used_by, COUNT(u.ID) AS number_of_uses
             FROM {$wpdb->prefix}oms_coupons AS c
-            LEFT JOIN {$wpdb->prefix}oms_coupon_user AS cu ON cu.oms_coupon_id = c.ID
+            LEFT JOIN {$wpdb->prefix}oms_coupons_user AS cu ON cu.oms_coupon_id = c.ID
             LEFT JOIN {$wpdb->prefix}users AS u ON cu.user_id = u.ID
             WHERE c.active = 1
             GROUP BY c.ID, c.code, c.type, c.value, c.limit, c.activated_at, c.expired_at

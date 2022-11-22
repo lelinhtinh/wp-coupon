@@ -29,17 +29,17 @@ $max_datetime = $max_date . "T" . $max_time;
                 <tr>
                     <th scope="row"><label for="code">Coupon Code <code class="status-error" title="Require">*</code></label></th>
                     <td colspan="2">
-                        <input name="code" type="text" id="code" value="" class="regular-text" minlength="3" maxlength="16" pattern="[a-z0-z_-]{3,16}" autofocus required>
+                        <input name="code" type="text" id="code" value="" class="regular-text" minlength="3" maxlength="16" pattern="[a-z0-z_-]{3,16}" autofocus required />
                         <p class="description">From 3 to 16 characters. Allow alphanumerics, dashes and underscores.</p>
                     </td>
                 </tr>
                 <tr>
                     <th scope="row"><label for="limit">Usage Limit <code class="status-error" title="Require">*</code></label></th>
-                    <td colspan="2"><input name="limit" type="number" min="0" step="1" id="limit" value="" class="small-text"></td>
+                    <td colspan="2"><input name="limit" type="number" min="0" step="1" id="limit" value="1" class="small-text" required /></td>
                 </tr>
                 <tr>
                     <th scope="row"><label for="type">Discount Value</label></th>
-                    <td><input name="value" type="number" min="0" step="1" id="value" value="" class="regular-text"></td>
+                    <td><input name="value" type="number" min="0" step="1" id="value" value="" class="regular-text" /></td>
                     <td>
                         <select name="type" id="type">
                             <option selected="selected" value="percentage">Percentage</option>
@@ -49,16 +49,16 @@ $max_datetime = $max_date . "T" . $max_time;
                 </tr>
                 <tr>
                     <th scope="row"><label for="activated_at">Activation Date</label></th>
-                    <td colspan="2"><input name="activated_at" type="datetime-local" id="activated_at" value="" class="regular-text" min="<?php echo $min_datetime ?>"></td>
+                    <td colspan="2"><input name="activated_at" type="datetime-local" id="activated_at" value="" class="regular-text" min="<?php echo $min_datetime ?>" /></td>
                 </tr>
                 <tr>
                     <th scope="row"><label for="expired_at">Expiration Date</label></th>
-                    <td colspan="2"><input name="expired_at" type="datetime-local" id="expired_at" value="" class="regular-text" min="<?php echo $min_datetime ?>"></td>
+                    <td colspan="2"><input name="expired_at" type="datetime-local" id="expired_at" value="" class="regular-text" min="<?php echo $min_datetime ?>" /></td>
                 </tr>
             </tbody>
         </table>
         <p class="submit">
-            <input type="submit" name="submit" id="submit" class="button button-primary button-large" value="Create Coupon">
+            <input type="submit" name="submit" id="submit" class="button button-primary button-large" value="Create Coupon" />
             &nbsp;&nbsp;&nbsp;&nbsp;
             <span class="status-error" id="help_text"></span>
         </p>

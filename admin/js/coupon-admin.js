@@ -65,7 +65,7 @@
         : type === 'numeric'
         ? value.toString().replace(/\d(?=(\d{3})+$)/g, '$&,')
         : value
-    }${value && type === 'percentage' ? '%' : currencySymbol}
+    }${!value ? '' : type === 'percentage' ? '%' : currencySymbol}
   </td>
   <td class="limit column-limit" data-colname="Usage Limit">
     <span class="oms-coupon-limit">${limit ?? ''}</span>

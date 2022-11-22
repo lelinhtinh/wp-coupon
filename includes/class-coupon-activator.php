@@ -87,7 +87,7 @@ class Coupon_Activator
 				`expired_at` TIMESTAMP NULL DEFAULT NULL,
 				`active` TINYINT(3) UNSIGNED NULL DEFAULT '1',
 				PRIMARY KEY (`ID`),
-				UNIQUE INDEX `code` (`code`)
+				UNIQUE INDEX `code` (`code`),
 				INDEX `active` (`active`)
     		) $charset_collate;
 			CREATE TABLE {$table_name}_user (
