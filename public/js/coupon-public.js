@@ -4,19 +4,36 @@
   $(function () {
     $('.oms-coupon-wrapper').each((i, ele) => {
       const $wrapper = $(ele);
-      const $countdown = $wrapper.find('.oms-coupon-timer');
+      const $activeTimer = $wrapper.find('.oms-coupon-timer');
+      const $expireTimer = $wrapper.find('.oms-coupon-expire');
+
       const activationTime = $wrapper.data('activation-time');
       if (activationTime <= 0) {
-        $countdown.slideUp();
-        return;
+        $activeTimer.slideUp();
+      } else {
+        new Timer(activationTime + 's', {
+          immediateInterval: true,
+          onTimeout: () => $activeTimer.slideUp(),
+          onInterval: (t) => $activeTimer.text(t.toString('s')),
+        });
       }
 
-      const timer = new Timer(
-        activationTime + 's',
-        () => $countdown.slideUp(),
-        (t) => $countdown.text(t.toString('s'))
-      );
-      $countdown.text(timer.toString('s'));
+      const expirationTime = $wrapper.data('expiration-time');
+      if (expirationTime > 0) {
+        new Timer(expirationTime + 's', {
+          immediateInterval: true,
+          onTimeout: () => {
+            $wrapper.addClass('oms-coupon-disable');
+            $wrapper.find('.oms-coupon-user').attr('disabled', true);
+            $expireTimer.empty();
+          },
+          onInterval: (t) => {
+            if (expirationTime < 300) {
+              $expireTimer.text(t.toString('s'));
+            }
+          },
+        });
+      }
     });
   });
 
@@ -41,6 +58,7 @@
             $saveBtn.text('Oh no...');
             $helpText.text(data.message);
           }
+          $saveBtn.attr('disabled', true);
         })
         .fail(() => {
           $saveBtn.text('Error!');

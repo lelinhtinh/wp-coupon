@@ -27,10 +27,14 @@
   padding: 10px;
   box-shadow: 2px 2px 2px 0px #b5b5b5;
   background: #f9f9f9;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
   user-select: none;
 }
 
 .oms-coupon-wrapper.oms-coupon-disable {
+  -webkit-filter: grayscale(1);
   filter: grayscale(1);
   opacity: 0.7;
   cursor: not-allowed;
@@ -77,6 +81,8 @@
   align-content: center;
   border-left: dashed 1px;
   padding-left: 10px;
+  flex-direction: column;
+  flex-wrap: nowrap;
 }
 
 .oms-coupon-save-btn {
@@ -139,4 +145,11 @@
   justify-content: space-around;
   align-items: center;
   font-size: 2em;
+}
+
+.oms-coupon-expire {
+  position: absolute;
+  transform: translateY(25px);
+  font-size: 0.7em;
+  color: #f93939;
 }

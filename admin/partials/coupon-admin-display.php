@@ -13,7 +13,7 @@
  */
 ?>
 <?php
-$min_datetime = str_replace(' ', 'T', tz_strtodate('now'));
+$min_datetime = substr(str_replace(' ', 'T', tz_strtodate('now')), 0, -3);
 ?>
 <div class="wrap">
     <h1><?php echo esc_html(get_admin_page_title()); ?></h1>

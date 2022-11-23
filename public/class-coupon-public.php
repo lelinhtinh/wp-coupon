@@ -160,7 +160,7 @@ class Coupon_Public
 			'limit' => intval($findOne->limit),
 			'number_of_uses' => intval($findOne->number_of_uses),
 			'activated_at' => is_null($findOne->activated_at) ? '' : tz_strtodate($findOne->activated_at, true) - tz_strtodate('now', true),
-			'expired_at' => is_null($findOne->expired_at) ? '' : tz_strtodate($findOne->expired_at, true),
+			'expired_at' => is_null($findOne->expired_at) ? '' : tz_strtodate($findOne->expired_at, true) - tz_strtodate('now', true),
 		];
 
 		$remaining = $outData['limit'] - $outData['number_of_uses'];
@@ -180,6 +180,7 @@ class Coupon_Public
 					<div class="oms-coupon-save">
 						<button class="oms-coupon-save-btn oms-coupon-user" data-id="%1\$d" %8\$s>Save</button>
 						<a class="oms-coupon-save-btn oms-coupon-nopriv" href="%9\$s">Save</a>
+						<span class="oms-coupon-expire"></span>
 					</div>
 					<div class="oms-coupon-timer"></div>
 				</div>
