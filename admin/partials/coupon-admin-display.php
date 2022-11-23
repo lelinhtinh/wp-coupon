@@ -13,12 +13,14 @@
  */
 ?>
 <?php
-$min_date = date("Y-m-d");
-$min_time = date("h:i");
+$curr_time = wp_strtotime('now');
+
+$min_date = date("Y-m-d", $curr_time);
+$min_time = date("h:i", $curr_time);
 $min_datetime = $min_date . "T" . $min_time;
 
 $max_date = date("Y-m-d", wp_strtotime("+7 Days"));
-$max_time = date("h:i");
+$max_time = date("h:i", $curr_time);
 $max_datetime = $max_date . "T" . $max_time;
 ?>
 <div class="wrap">
