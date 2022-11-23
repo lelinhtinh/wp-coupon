@@ -14,4 +14,15 @@
 
 ?>
 
-<!-- This file should primarily consist of HTML with a little bit of PHP. -->
+<?php
+require dirname(__FILE__) . '/coupon-public-table.php';
+$coupon_list_table = new Coupon_Public_Table();
+$coupon_list_table->prepare_items();
+?>
+<div class="wrap">
+<h1><?php echo esc_html(get_admin_page_title()); ?></h1>
+    <form id="movies-filter" method="get">
+        <input type="hidden" name="page" value="<?php echo $_REQUEST['page'] ?>" />
+        <?php $coupon_list_table->display() ?>
+    </form>
+</div>

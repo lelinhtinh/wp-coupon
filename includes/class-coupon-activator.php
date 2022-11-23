@@ -76,8 +76,9 @@ class Coupon_Activator
 		$table_name = $wpdb->prefix . self::$plugin . 's';
 		$charset_collate = $wpdb->get_charset_collate();
 
-		if ($wpdb->get_var("SHOW TABLES LIKE '{$table_name}'") != $table_name) {
-			$sql = "CREATE TABLE {$table_name} (
+		$sql = "";
+		if ($wpdb->get_var("SHOW TABLES LIKE '{$table_name}'") !== $table_name) {
+			$sql .= "CREATE TABLE {$table_name} (
 				`ID` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 				`code` VARCHAR(16) NOT NULL,
 				`type` ENUM('percentage','numeric') NOT NULL DEFAULT 'percentage',
@@ -85,25 +86,29 @@ class Coupon_Activator
 				`limit` INT(10) UNSIGNED NOT NULL DEFAULT '1',
 				`activated_at` TIMESTAMP NULL DEFAULT NULL,
 				`expired_at` TIMESTAMP NULL DEFAULT NULL,
-				`active` TINYINT(3) UNSIGNED NULL DEFAULT '1',
 				`created_by` BIGINT UNSIGNED NOT NULL,
+				`active` TINYINT(3) UNSIGNED NULL DEFAULT '1',
 				PRIMARY KEY (`ID`),
 				UNIQUE INDEX `code` (`code`),
 				INDEX `active` (`active`),
 				INDEX `created_by` (`created_by`)
-    		) $charset_collate;
-			CREATE TABLE {$table_name}_user (
+    		) $charset_collate;";
+		}
+		if ($wpdb->get_var("SHOW TABLES LIKE '{$table_name}_user'") !== "{$table_name}_user") {
+			$sql .= "CREATE TABLE {$table_name}_user (
 				`oms_coupon_id` BIGINT UNSIGNED NOT NULL,
 				`user_id` BIGINT UNSIGNED NOT NULL,
 				`saved_at` TIMESTAMP NULL DEFAULT NULL,
-				`used_at` TIMESTAMP NULL DEFAULT NULL,
-				PRIMARY KEY (`oms_coupon_id`, `user_id`)
+				`active` TINYINT(3) UNSIGNED NULL DEFAULT '1',
+				PRIMARY KEY (`oms_coupon_id`, `user_id`),
+				INDEX `active` (`active`)
     		) $charset_collate;";
-
+		}
+		if (!empty($sql)) {
 			require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 			dbDelta($sql);
-			add_option(self::$plugin . '_version', self::$version);
 		}
+		add_option(self::$plugin . '_version', self::$version);
 	}
 
 	/**

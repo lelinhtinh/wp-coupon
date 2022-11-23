@@ -26,7 +26,7 @@
  * @package WPListTableExample
  * @author  Matt van Andel
  */
-class Coupon_Admin_Table extends WP_List_Table
+class Coupon_Public_Table extends WP_List_Table
 {
     /**
      * Coupone_List_Table constructor.
@@ -63,14 +63,11 @@ class Coupon_Admin_Table extends WP_List_Table
     public function get_columns()
     {
         $columns = [
-            'cb'             => '<input type="checkbox" />',   // Render a checkbox instead of text.
-            'code'           => 'Coupon Code',
-            'value'          => 'Discount',
-            'limit'          => 'Usage Limit',
-            'activated_at'   => 'Activation Date',
-            'expired_at'     => 'Expiration Date',
-            'number_of_uses' => 'N. Uses',
-            'used_by'        => 'Used By',
+            'cb'         => '<input type="checkbox" />',   // Render a checkbox instead of text.
+            'code'       => 'Coupon Code',
+            'value'      => 'Discount',
+            'saved_at'   => 'Saved Date',
+            'expired_at' => 'Expiration Date',
         ];
 
         return $columns;
@@ -100,11 +97,10 @@ class Coupon_Admin_Table extends WP_List_Table
     protected function get_sortable_columns()
     {
         $sortable_columns = [
-            'code'         => ['code', false],
-            'value'        => ['value', false],
-            'limit'        => ['limit', false],
-            'activated_at' => ['activated_at', false],
-            'expired_at'   => ['expired_at', false],
+            'code'       => ['code', false],
+            'value'      => ['value', false],
+            'saved_at'   => ['saved_at', false],
+            'expired_at' => ['expired_at', false],
         ];
 
         return $sortable_columns;
@@ -138,11 +134,8 @@ class Coupon_Admin_Table extends WP_List_Table
         switch ($column_name) {
             case 'code':
             case 'value':
-            case 'limit':
-            case 'activated_at':
+            case 'saved_at':
             case 'expired_at':
-            case 'number_of_uses':
-            case 'used_by':
                 return $item[$column_name];
             default:
                 return print_r($item, true); // Show the whole array for troubleshooting purposes.
@@ -202,45 +195,13 @@ class Coupon_Admin_Table extends WP_List_Table
             _x('Hide', 'List table row action', 'wp-list-table-hide')
         );
 
-        // Build delete row action.
-        $delete_query_args = [
-            'page'      => $page,
-            'action'    => 'delete',
-            $this->_args['singular'] => $item['ID'],
-        ];
-
-        $actions['delete'] = sprintf(
-            '<a href="%1$s">%2$s</a>',
-            esc_url(wp_nonce_url(add_query_arg($delete_query_args, 'admin.php'), 'deletecoupon_' . $item['ID'])),
-            _x('Delete', 'List table row action', 'wp-list-table-delete')
-        );
-
         // Return the code contents.
         return sprintf(
-            '<span class="oms-coupon-code%1$s%2$s">%3$s</span> <span data-id="%4$d" title="Click to Copy" class="oms-coupon-shortcode">[oms_coupon id="%4$d"]</span>%5$s',
-            empty($item['limit']) || intval($item['limit']) > intval($item['number_of_uses']) ? '' : ' status-warning',
+            '<span class="oms-coupon-code%1$s">%2$s</span> <span data-code="%2$s" title="Click to Copy" class="oms-coupon-shortcode oms-coupon-copy">Copy</span>%4$s',
             !empty($item['expired_at']) && tz_strtodate($item['expired_at'], true) < tz_strtodate('now', true)  ? ' status-error' : '',
             $item['code'],
             $item['ID'],
             $this->row_actions($actions)
-        );
-    }
-
-    protected function column_limit($item)
-    {
-        return sprintf(
-            '<span class="oms-coupon-limit%1$s">%2$d</span>',
-            empty($item['limit']) || intval($item['limit']) > intval($item['number_of_uses']) ? '' : ' status-warning',
-            $item['limit'],
-        );
-    }
-
-    protected function column_number_of_uses($item)
-    {
-        return sprintf(
-            '<span class="oms-coupon-number_of_uses%1$s">%2$d</span>',
-            empty($item['limit']) || intval($item['limit']) > intval($item['number_of_uses']) ? '' : ' status-warning',
-            $item['number_of_uses'],
         );
     }
 
@@ -279,7 +240,6 @@ class Coupon_Admin_Table extends WP_List_Table
     {
         $actions = [
             'hide' => _x('Hide', 'List table bulk action', 'wp-list-table-hide'),
-            'delete' => _x('Delete', 'List table bulk action', 'wp-list-table-delete'),
         ];
 
         return $actions;
@@ -297,20 +257,12 @@ class Coupon_Admin_Table extends WP_List_Table
     protected function process_bulk_action()
     {
         global $wpdb;
-        if (isset($_GET[$this->_args['singular']])) {
+        $user_id = get_current_user_id();
+
+        if (isset($_GET[$this->_args['singular']]) && $this->current_action() === 'hide') {
             $coupon_params = $_GET[$this->_args['singular']];
             $ids = is_array($coupon_params) ? implode(',', $coupon_params) : $coupon_params;
-            switch ($this->current_action()) {
-                case 'hide':
-                    $wpdb->query("UPDATE {$wpdb->prefix}oms_coupons SET active = 0 WHERE ID IN({$ids})");
-                    break;
-                case 'delete':
-                    $wpdb->query("DELETE FROM {$wpdb->prefix}oms_coupons WHERE ID IN({$ids})");
-                    $wpdb->query("DELETE FROM {$wpdb->prefix}oms_coupons_user WHERE oms_coupon_id IN({$ids})");
-                    break;
-                default:
-                    break;
-            }
+            $wpdb->query("UPDATE {$wpdb->prefix}oms_coupons_user SET active = 0 WHERE oms_coupon_id IN({$ids}) AND user_id = {$user_id}");
         }
     }
 
@@ -334,6 +286,7 @@ class Coupon_Admin_Table extends WP_List_Table
     function prepare_items()
     {
         global $wpdb;
+        $user_id = get_current_user_id();
 
         /**
          * REQUIRED for pagination.
@@ -345,7 +298,7 @@ class Coupon_Admin_Table extends WP_List_Table
         /**
          * Total active coupons.
          */
-        $total_items = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}oms_coupons WHERE active = 1");
+        $total_items = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}oms_coupons_user WHERE active = 1 AND user_id = {$user_id}");
 
         /*
 		 * REQUIRED. Now we need to define our column headers. This includes a complete
@@ -374,6 +327,7 @@ class Coupon_Admin_Table extends WP_List_Table
 
         // If no sort, default to ID.
         $orderby = !empty($_REQUEST['orderby']) ? wp_unslash($_REQUEST['orderby']) : 'ID'; // WPCS: Input var ok.
+        $orderby = ($orderby === 'saved_at' ? 'cu.' : 'c.') . $orderby;
         // If no order, default to asc.
         $order = !empty($_REQUEST['order']) ? wp_unslash($_REQUEST['order']) : 'desc'; // WPCS: Input var ok.
 
@@ -382,14 +336,11 @@ class Coupon_Admin_Table extends WP_List_Table
 		 */
         $data = $wpdb->get_results("
             SELECT
-                c.ID, c.code, c.type, c.value, c.limit, c.activated_at, c.expired_at,
-                GROUP_CONCAT(u.display_name SEPARATOR ', ') AS used_by, COUNT(u.ID) AS number_of_uses
+                c.ID, c.code, c.type, c.value, c.expired_at, cu.saved_at
             FROM {$wpdb->prefix}oms_coupons AS c
             LEFT JOIN {$wpdb->prefix}oms_coupons_user AS cu ON cu.oms_coupon_id = c.ID
-            LEFT JOIN {$wpdb->prefix}users AS u ON cu.user_id = u.ID
-            WHERE c.active = 1
-            GROUP BY c.ID, c.code, c.type, c.value, c.limit, c.activated_at, c.expired_at
-            ORDER BY c.{$orderby} {$order}
+            WHERE cu.active = 1 AND user_id = {$user_id}
+            ORDER BY {$orderby} {$order}
             LIMIT {$per_page} OFFSET {$offset_page}
         ", ARRAY_A);
 

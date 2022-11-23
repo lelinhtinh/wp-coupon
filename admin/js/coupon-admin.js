@@ -8,13 +8,17 @@
     const $code = $('#code');
     const currencySymbol = '₫';
 
-    $list.on('click', '.oms-coupon-shortcode', (e) => {
+    $list.on('click', '.oms-coupon-shortcode, .oms-coupon-copy', (e) => {
       e.preventDefault();
       const $shortcode = $(e.target);
       const shortcodeContent = $shortcode.text();
 
       navigator.clipboard
-        .writeText(`[oms_coupon id="${$shortcode.data('id')}"]`)
+        .writeText(
+          !$shortcode.hasClass('oms-coupon-copy')
+            ? `[oms_coupon id="${$shortcode.data('id')}"]`
+            : $shortcode.data('code').toUpperCase()
+        )
         .then(
           () => {
             $shortcode.text('Coppied!');

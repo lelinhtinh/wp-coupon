@@ -135,7 +135,7 @@ class Coupon_Public
 		 *
 		 * @see https://developer.wordpress.org/themes/theme-security/data-sanitization-escaping/
 		 */
-		$user_id  = get_current_user_id();
+		$user_id = get_current_user_id();
 		$coupon_id = intval($atts['id']);
 
 		global $wpdb;
@@ -164,7 +164,7 @@ class Coupon_Public
 		];
 
 		$remaining = $outData['limit'] - $outData['number_of_uses'];
-		$used_by_id = explode(',', $findOne->used_by_id);
+		$used_by_id = explode(',', $findOne->used_by_id ?? '');
 		$is_disable = (!is_null($findOne->expired_at) && tz_strtodate($findOne->expired_at, true) < tz_strtodate('now', true))
 			|| $findOne->limit === $findOne->number_of_uses
 			|| in_array($user_id, $used_by_id);
