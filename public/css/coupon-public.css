@@ -19,6 +19,7 @@
 }
 
 .oms-coupon-wrapper {
+  box-sizing: content-box;
   position: relative;
   width: 280px;
   height: 80px;
@@ -53,6 +54,7 @@
   font-weight: 700;
   color: #ff5722;
   text-transform: uppercase;
+  line-height: 1;
 }
 
 .oms-coupon-discount {
