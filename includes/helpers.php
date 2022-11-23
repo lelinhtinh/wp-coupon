@@ -11,7 +11,7 @@ function get_discount_string($item)
         ) . ($item['type'] === 'numeric' ? $currency_symbol : '%');
 }
 
-function wp_strtotime($str)
+function tz_strtodate($str, $to_timestamp = false)
 {
     // This function behaves a bit like PHP's StrToTime() function, but taking into account the Wordpress site's timezone
     // CAUTION: It will throw an exception when it receives invalid input - please catch it accordingly
@@ -29,13 +29,13 @@ function wp_strtotime($str)
     } else {
         $timezone = $tz_offset;
 
-        if (substr($tz_offset, 0, 1) != "-" && substr($tz_offset, 0, 1) != "+" && substr($tz_offset, 0, 1) != "U") {
-            $timezone = "+" . $tz_offset;
+        if (substr($tz_offset, 0, 1) != '-' && substr($tz_offset, 0, 1) != '+' && substr($tz_offset, 0, 1) != 'U') {
+            $timezone = '+' . $tz_offset;
         }
     }
 
     $datetime = new DateTime($str, new DateTimeZone($timezone));
-    return $datetime->format('U');
+    return $datetime->format($to_timestamp ? 'U' : 'Y-m-d H:i:s');
 }
 
 function startsWith($haystack, $needle)

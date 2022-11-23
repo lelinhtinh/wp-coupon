@@ -84,6 +84,16 @@ class Coupon_Public
 	{
 		wp_enqueue_script('goodtimer', plugin_dir_url(__FILE__) . 'js/goodtimer-3.4.0.js', [], '3.4.0', true);
 		wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/coupon-public.js', ['jquery', 'goodtimer'], $this->version, true);
+
+		$title_nonce = wp_create_nonce($this->plugin_prefix . $this->plugin_name . '_save_nonce');
+		wp_localize_script(
+			$this->plugin_name,
+			$this->plugin_prefix . $this->plugin_name . '_user_ajax',
+			[
+				'ajax_url' => admin_url('admin-ajax.php'),
+				'nonce'    => $title_nonce,
+			]
+		);
 	}
 
 	/**
@@ -125,34 +135,40 @@ class Coupon_Public
 		 *
 		 * @see https://developer.wordpress.org/themes/theme-security/data-sanitization-escaping/
 		 */
-		$id = intval($atts['id']);
+		$user_id  = get_current_user_id();
+		$coupon_id = intval($atts['id']);
 
 		global $wpdb;
-		$coupon = $wpdb->get_row("
-			SELECT c.ID, c.code, c.type, c.value, c.limit, c.activated_at, c.expired_at, COUNT(u.ID) AS number_of_uses
+		$findOne = $wpdb->get_row("
+			SELECT
+				c.ID, c.code, c.type, c.value, c.limit, c.activated_at, c.expired_at,
+				COUNT(cu.user_id) AS number_of_uses, GROUP_CONCAT(cu.user_id SEPARATOR ',') AS used_by_id
 			FROM {$wpdb->prefix}oms_coupons AS c
 			LEFT JOIN {$wpdb->prefix}oms_coupons_user AS cu ON cu.oms_coupon_id = c.ID
-			LEFT JOIN {$wpdb->prefix}users AS u ON cu.user_id = u.ID
-			WHERE c.active = 1 AND c.ID = {$id} AND ( c.expired_at IS NULL OR ( c.expired_at IS NOT NULL AND c.expired_at > CURDATE() ) )
+			WHERE c.ID = {$coupon_id} AND c.active = 1
 			GROUP BY c.ID, c.code, c.type, c.value, c.limit, c.activated_at, c.expired_at
 		", OBJECT);
 
-		if (is_null($coupon)) {
-			return '<script>console.warn("%c Coupon not found: ' . $id . '", "color:#ff5722")</script>';
+		if (is_null($findOne)) {
+			return '<script>console.warn("%c Coupon not found: ' . $coupon_id . '", "color:#ff5722")</script>';
 		}
 
 		$outData = [
-			'code' => $coupon->code,
-			'type' => $coupon->type,
-			'value' => $coupon->value,
-			'limit' => intval($coupon->limit),
-			'number_of_uses' => intval($coupon->number_of_uses),
-			'activated_at' => is_null($coupon->activated_at) ? '' : wp_strtotime($coupon->activated_at) - time(),
-			'expired_at' => is_null($coupon->expired_at) ? '' : wp_strtotime($coupon->expired_at),
+			'code' => $findOne->code,
+			'type' => $findOne->type,
+			'value' => $findOne->value,
+			'limit' => intval($findOne->limit),
+			'number_of_uses' => intval($findOne->number_of_uses),
+			'activated_at' => is_null($findOne->activated_at) ? '' : tz_strtodate($findOne->activated_at, true) - tz_strtodate('now', true),
+			'expired_at' => is_null($findOne->expired_at) ? '' : tz_strtodate($findOne->expired_at, true),
 		];
 
 		$remaining = $outData['limit'] - $outData['number_of_uses'];
-		$is_disable = (!is_null($coupon->expired_at) && wp_strtotime($coupon->expired_at) <= time()) || $coupon->limit === $coupon->number_of_uses;
+		$used_by_id = explode(',', $findOne->used_by_id);
+		$is_disable = (!is_null($findOne->expired_at) && tz_strtodate($findOne->expired_at, true) < tz_strtodate('now', true))
+			|| $findOne->limit === $findOne->number_of_uses
+			|| in_array($user_id, $used_by_id);
+
 		return sprintf(
 			<<<EOL
 				<div class="oms-coupon-wrapper%7\$s" data-id="%1\$d" data-activation-time="%3\$d" data-expiration-time="%4\$d">
@@ -162,19 +178,21 @@ class Coupon_Public
 						<div class="oms-coupon-remaining">Remaining uses: <strong>%6\$d</strong></div>
 					</div>
 					<div class="oms-coupon-save">
-						<button class="oms-coupon-save-btn" data-id="%1\$d" %8\$s>Save</button>
+						<button class="oms-coupon-save-btn oms-coupon-user" data-id="%1\$d" %8\$s>Save</button>
+						<a class="oms-coupon-save-btn oms-coupon-nopriv" href="%9\$s">Save</a>
 					</div>
 					<div class="oms-coupon-timer"></div>
 				</div>
 			EOL,
-			$id,
+			$coupon_id,
 			$outData['code'],
 			$outData['activated_at'],
 			$outData['expired_at'],
 			get_discount_string($outData),
 			$remaining,
 			$is_disable ? ' oms-coupon-disable' : '',
-			$is_disable ? ' disabled' : ''
+			$is_disable ? ' disabled' : '',
+			wp_login_url(get_permalink())
 		);
 	}
 
@@ -188,5 +206,66 @@ class Coupon_Public
 			plugin_dir_path(__FILE__) . 'partials/coupon-public-display.php',
 			null,
 		);
+	}
+
+	public function save_coupon()
+	{
+		check_ajax_referer($this->plugin_prefix . $this->plugin_name . '_save_nonce');
+		if (!$_POST['action'] || $_POST['action'] != 'oms_coupon_save') {
+			header('Status: 403 Forbidden', true, 403);
+			wp_die();
+		}
+
+		$user_id  = get_current_user_id();
+		$coupon_id = intval($_POST['id']);
+		$now = tz_strtodate('now');
+
+		global $wpdb;
+
+		$findOne = $wpdb->get_row("
+			SELECT
+			    c.ID, c.limit,
+			    COUNT(cu.user_id) AS number_of_uses, GROUP_CONCAT(cu.user_id SEPARATOR ',') AS used_by_id
+			FROM {$wpdb->prefix}oms_coupons AS c
+            LEFT JOIN {$wpdb->prefix}oms_coupons_user AS cu ON cu.oms_coupon_id = c.ID
+			WHERE
+				c.ID = {$coupon_id} AND c.active = 1
+				AND ( ( c.activated_at IS NOT NULL AND c.activated_at < '{$now}' ) OR c.activated_at IS NULL )
+				AND ( ( c.expired_at IS NOT NULL AND c.expired_at > '{$now}' ) OR c.expired_at IS NULL )
+			GROUP BY c.ID, c.limit
+			HAVING c.limit > number_of_uses
+		", OBJECT);
+
+		if (is_null($findOne)) {
+			wp_send_json([
+				'status' => 'error',
+				'message' => 'Coupon not avaliable',
+			]);
+		}
+
+		$used_by_id = explode(',', $findOne->used_by_id ?? '');
+		if (in_array($user_id, $used_by_id)) {
+			wp_send_json([
+				'status' => 'error',
+				'message' => 'You got it, at ' . $findOne->saved_at,
+			]);
+		}
+
+		$wpdb->insert(
+			$wpdb->prefix . 'oms_coupons_user',
+			[
+				'user_id' => $user_id,
+				'oms_coupon_id' => $coupon_id,
+				'saved_at' => $now,
+			],
+			['%d', '%d', '%s']
+		);
+
+		wp_send_json([
+			'status' => 'ok',
+			'data' => [
+				'saved_at' => $now,
+			],
+		], 201);
 	}
 }

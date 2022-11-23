@@ -171,7 +171,7 @@ class Coupon
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_styles');
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
 
-		$this->loader->add_action('wp_ajax_oms_coupon_create', $plugin_admin, 'save_coupon');
+		$this->loader->add_action('wp_ajax_oms_coupon_create', $plugin_admin, 'create_coupon');
 	}
 
 	/**
@@ -192,6 +192,7 @@ class Coupon
 
 		// Shortcode name must be the same as in shortcode_atts() third parameter.
 		$this->loader->add_shortcode($this->get_plugin_prefix() . $this->get_plugin_name(), $plugin_public, 'oms_shortcode_func');
+		$this->loader->add_action('wp_ajax_oms_coupon_save', $plugin_public, 'save_coupon');
 	}
 
 	/**

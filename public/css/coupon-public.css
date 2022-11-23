@@ -83,8 +83,15 @@
   cursor: pointer;
   background: #ff5722;
   border: 1px solid #ff4308;
-  color: #fff;
+  color: #fff !important;
   padding: 4px 6px;
+  text-decoration: none;
+  font-size: 0.8em;
+  box-sizing: border-box;
+  margin: 0;
+  line-height: 1;
+  outline: 0 none;
+  display: block;
 }
 
 .oms-coupon-save-btn:focus,
@@ -102,6 +109,16 @@
   cursor: not-allowed;
   background: #353535;
   border-color: #131313;
+}
+
+.oms-coupon-disable .oms-coupon-timer,
+.logged-in .oms-coupon-nopriv,
+.oms-coupon-user {
+  display: none;
+}
+
+.logged-in .oms-coupon-user {
+  display: block;
 }
 
 .oms-coupon-timer {
@@ -122,8 +139,4 @@
   justify-content: space-around;
   align-items: center;
   font-size: 2em;
-}
-
-.oms-coupon-disable .oms-coupon-timer {
-  display: none;
 }
