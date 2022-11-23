@@ -37,3 +37,18 @@ function wp_strtotime($str)
     $datetime = new DateTime($str, new DateTimeZone($timezone));
     return $datetime->format('U');
 }
+
+function startsWith($haystack, $needle)
+{
+    $length = strlen($needle);
+    return substr($haystack, 0, $length) === $needle;
+}
+
+function endsWith($haystack, $needle)
+{
+    $length = strlen($needle);
+    if (!$length) {
+        return true;
+    }
+    return substr($haystack, -$length) === $needle;
+}
