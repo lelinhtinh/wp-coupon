@@ -137,15 +137,8 @@ class Coupon_Public
 			GROUP BY c.ID, c.code, c.type, c.value, c.limit, c.activated_at, c.expired_at
 		", OBJECT);
 
-		if (
-			is_null($coupon)
-			|| (!is_null($coupon->expired_at) && wp_strtotime($coupon->expired_at) <= time())
-			|| $coupon->limit === $coupon->number_of_uses
-		) {
-			return sprintf(
-				'<p><em class="status-error">Coupon not available</em></p>',
-				$id
-			);
+		if (is_null($coupon)) {
+			return '<script>console.warn("%c Coupon not found: ' . $id . '", "color:#ff5722")</script>';
 		}
 
 		$outData = [
@@ -159,16 +152,17 @@ class Coupon_Public
 		];
 
 		$remaining = $outData['limit'] - $outData['number_of_uses'];
+		$is_disable = (!is_null($coupon->expired_at) && wp_strtotime($coupon->expired_at) <= time()) || $coupon->limit === $coupon->number_of_uses;
 		return sprintf(
 			<<<EOL
-				<div class="oms-coupon-wrapper" data-id="%1\$d" data-activation-time="%3\$d" data-expiration-time="%4\$d">
+				<div class="oms-coupon-wrapper%7\$s" data-id="%1\$d" data-activation-time="%3\$d" data-expiration-time="%4\$d">
 					<div class="oms-coupon-content">
 					<div class="oms-coupon-code">%2\$s</div>
 						<div class="oms-coupon-discount">%5\$s</div>
 						<div class="oms-coupon-remaining">Remaining uses: <strong>%6\$d</strong></div>
 					</div>
 					<div class="oms-coupon-save">
-						<button class="oms-coupon-save-btn" data-id="%1\$d">Save</button>
+						<button class="oms-coupon-save-btn" data-id="%1\$d" %8\$s>Save</button>
 					</div>
 					<div class="oms-coupon-timer"></div>
 				</div>
@@ -179,6 +173,8 @@ class Coupon_Public
 			$outData['expired_at'],
 			get_discount_string($outData),
 			$remaining,
+			$is_disable ? ' oms-coupon-disable' : '',
+			$is_disable ? ' disabled' : ''
 		);
 	}
 }

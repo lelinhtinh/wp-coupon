@@ -137,9 +137,9 @@ class Coupon_Admin
 		$type = in_array($_POST['type'], ['percentage', 'numeric']) ? $_POST['type'] : 'percentage';
 		$value = !empty($_POST['value']) ? intval($_POST['value']) : null;
 		$limit = !empty($_POST['limit']) ? intval($_POST['limit']) : null;
-		$activated_at = !empty($_POST['activated_at']) ? date('Y-m-d\TH:i:s', strtotime($_POST['activated_at'])) : null;
-		$expired_at = !empty($_POST['expired_at']) ? date('Y-m-d\TH:i:s', strtotime($_POST['expired_at'])) : null;
-		if ($activated_at > $expired_at) {
+		$activated_at = !empty($_POST['activated_at']) ? date('Y-m-d\TH:i', strtotime($_POST['activated_at'])) : null;
+		$expired_at = !empty($_POST['expired_at']) ? date('Y-m-d\TH:i', strtotime($_POST['expired_at'])) : null;
+		if (!is_null($activated_at) && !is_null($expired_at) && $activated_at > $expired_at) {
 			wp_send_json([
 				'status' => 'error',
 				'message' => 'Expiration Date must be after Activation Date'

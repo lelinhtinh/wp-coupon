@@ -90,11 +90,11 @@
   <td class="limit column-limit" data-colname="Usage Limit">
     <span class="oms-coupon-limit">${limit ?? ''}</span>
   </td>
-  <td class="activated_at column-activated_at" data-colname="Activation Date">${
-    activated_at ?? ''
-  }</td>
+  <td class="activated_at column-activated_at" data-colname="Activation Date">${formatDate(
+    activated_at
+  )}</td>
   <td class="expired_at column-expired_at" data-colname="Expiration Date">
-    <span class="oms-coupon-expired_at">${expired_at ?? ''}</span>
+    <span class="oms-coupon-expired_at">${formatDate(expired_at)}</span>
   </td>
   <td class="number_of_uses column-number_of_uses" data-colname="N. Uses">
     <span class="oms-coupon-number_of_uses">0</span>
@@ -117,4 +117,9 @@
         });
     });
   });
+
+  function formatDate(dt) {
+    if (!dt) return '';
+    return dt.replace('T', ' ') + ':00';
+  }
 })(jQuery);
