@@ -26,7 +26,7 @@
  * @package WPListTableExample
  * @author  Matt van Andel
  */
-class Coupon_List_Table extends WP_List_Table
+class Coupon_Admin_Table extends WP_List_Table
 {
     /**
      * Coupone_List_Table constructor.

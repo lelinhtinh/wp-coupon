@@ -60,8 +60,8 @@ $min_datetime = substr(str_replace(' ', 'T', tz_strtodate('now')), 0, -3);
 </div>
 
 <?php
-require dirname(__FILE__) . '/coupon-list-table.php';
-$coupon_list_table = new Coupon_List_Table();
+require dirname(__FILE__) . '/coupon-admin-table.php';
+$coupon_list_table = new Coupon_Admin_Table();
 $coupon_list_table->prepare_items();
 ?>
 <div class="wrap">
