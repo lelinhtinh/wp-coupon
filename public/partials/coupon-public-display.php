@@ -11,7 +11,6 @@
  * @package    Coupon
  * @subpackage Coupon/public/partials
  */
-
 ?>
 
 <?php

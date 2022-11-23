@@ -189,7 +189,7 @@ class Coupon_Public
 			$outData['code'],
 			$outData['activated_at'],
 			$outData['expired_at'],
-			get_discount_string($outData),
+			get_discount_string($outData, 'Discount '),
 			$remaining,
 			$is_disable ? ' oms-coupon-disable' : '',
 			$is_disable ? ' disabled' : '',

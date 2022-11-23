@@ -117,7 +117,7 @@ class Coupon_Admin
 	public function create_coupon()
 	{
 		check_ajax_referer($this->plugin_prefix . $this->plugin_name . '_create_nonce');
-		if (!$_POST['action'] || $_POST['action'] != 'oms_coupon_create' || !is_admin()) {
+		if (!$_POST['action'] || $_POST['action'] != 'oms_coupon_create' || !current_user_can('administrator')) {
 			header('Status: 403 Forbidden', true, 403);
 			wp_die();
 		}
