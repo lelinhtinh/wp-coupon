@@ -177,4 +177,16 @@ class Coupon_Public
 			$is_disable ? ' disabled' : ''
 		);
 	}
+
+	public function options_user()
+	{
+		add_submenu_page(
+			plugin_dir_path(dirname(__FILE__)) . 'admin/partials/coupon-admin-display.php',
+			'OMS Coupon List',
+			'Coupon List',
+			'read',
+			plugin_dir_path(__FILE__) . 'partials/coupon-public-display.php',
+			null,
+		);
+	}
 }

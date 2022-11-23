@@ -101,11 +101,11 @@ class Coupon_Admin
 		);
 	}
 
-	public function options_page()
+	public function options_admin()
 	{
 		add_menu_page(
 			'OMS Coupon Manager',
-			'OMS Coupon',
+			'Coupon Manager',
 			'manage_options',
 			plugin_dir_path(__FILE__) . 'partials/coupon-admin-display.php',
 			null,

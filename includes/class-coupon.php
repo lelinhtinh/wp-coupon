@@ -166,7 +166,7 @@ class Coupon
 	{
 		$plugin_admin = new Coupon_Admin($this->get_plugin_name(), $this->get_plugin_prefix(), $this->get_version());
 
-		$this->loader->add_action('admin_menu', $plugin_admin, 'options_page');
+		$this->loader->add_action('admin_menu', $plugin_admin, 'options_admin');
 
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_styles');
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
@@ -184,6 +184,8 @@ class Coupon
 	private function define_public_hooks()
 	{
 		$plugin_public = new Coupon_Public($this->get_plugin_name(), $this->get_plugin_prefix(), $this->get_version());
+
+		$this->loader->add_action('admin_menu', $plugin_public, 'options_user');
 
 		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
 		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_scripts');
