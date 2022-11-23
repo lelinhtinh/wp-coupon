@@ -90,7 +90,7 @@ class Coupon_Admin
 
 		wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/coupon-admin.js', ['jquery'], $this->version, false);
 
-		$title_nonce = wp_create_nonce($this->plugin_prefix . $this->plugin_name . '_form');
+		$title_nonce = wp_create_nonce($this->plugin_prefix . $this->plugin_name . '_create_nonce');
 		wp_localize_script(
 			$this->plugin_name,
 			$this->plugin_prefix . $this->plugin_name . '_admin_ajax',
@@ -114,9 +114,9 @@ class Coupon_Admin
 		);
 	}
 
-	public function save_coupon()
+	public function create_coupon()
 	{
-		check_ajax_referer($this->plugin_prefix . $this->plugin_name . '_form');
+		check_ajax_referer($this->plugin_prefix . $this->plugin_name . '_create_nonce');
 		if (!$_POST['action'] || $_POST['action'] != 'oms_coupon_create' || !is_admin()) {
 			header('Status: 403 Forbidden', true, 403);
 			wp_die();
@@ -137,9 +137,12 @@ class Coupon_Admin
 		$type = in_array($_POST['type'], ['percentage', 'numeric']) ? $_POST['type'] : 'percentage';
 		$value = !empty($_POST['value']) ? intval($_POST['value']) : null;
 		$limit = !empty($_POST['limit']) ? intval($_POST['limit']) : null;
-		$activated_at = !empty($_POST['activated_at']) ? date('Y-m-d\TH:i', strtotime($_POST['activated_at'])) : null;
-		$expired_at = !empty($_POST['expired_at']) ? date('Y-m-d\TH:i', strtotime($_POST['expired_at'])) : null;
-		if (!is_null($activated_at) && !is_null($expired_at) && $activated_at > $expired_at) {
+		$activated_at = !empty($_POST['activated_at']) ? tz_strtodate($_POST['activated_at']) : null;
+		$expired_at = !empty($_POST['expired_at']) ? tz_strtodate($_POST['expired_at']) : null;
+		if (
+			!is_null($activated_at) && !is_null($expired_at)
+			&& tz_strtodate($_POST['activated_at'], true) > tz_strtodate($_POST['expired_at'], true)
+		) {
 			wp_send_json([
 				'status' => 'error',
 				'message' => 'Expiration Date must be after Activation Date'
@@ -153,11 +156,12 @@ class Coupon_Admin
 			'limit' => $limit,
 			'activated_at' => $activated_at,
 			'expired_at' => $expired_at,
+			'created_by' => $user_id,
 		];
 		$wpdb->insert(
 			$wpdb->prefix . 'oms_coupons',
 			$insert_data,
-			['%s', '%s', '%d', '%d', '%s', '%s']
+			['%s', '%s', '%d', '%d', '%s', '%s', '%d']
 		);
 		$insert_data['ID'] = $wpdb->insert_id;
 

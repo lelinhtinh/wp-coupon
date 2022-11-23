@@ -219,7 +219,7 @@ class Coupon_List_Table extends WP_List_Table
         return sprintf(
             '<span class="oms-coupon-code%1$s%2$s">%3$s</span> <span data-id="%4$d" title="Click to Copy" class="oms-coupon-shortcode">[oms_coupon id="%4$d"]</span>%5$s',
             empty($item['limit']) || intval($item['limit']) > intval($item['number_of_uses']) ? '' : ' status-warning',
-            !empty($item['expired_at']) && wp_strtotime($item['expired_at']) < wp_strtotime('now')  ? ' status-error' : '',
+            !empty($item['expired_at']) && tz_strtodate($item['expired_at'], true) < tz_strtodate('now', true)  ? ' status-error' : '',
             $item['code'],
             $item['ID'],
             $this->row_actions($actions)
@@ -248,7 +248,7 @@ class Coupon_List_Table extends WP_List_Table
     {
         return sprintf(
             '<span class="oms-coupon-expired_at%1$s">%2$s</span>',
-            !empty($item['expired_at']) && wp_strtotime($item['expired_at']) < wp_strtotime('now')  ? ' status-error' : '',
+            !empty($item['expired_at']) && tz_strtodate($item['expired_at'], true) < tz_strtodate('now', true)  ? ' status-error' : '',
             $item['expired_at'],
         );
     }

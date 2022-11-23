@@ -13,15 +13,7 @@
  */
 ?>
 <?php
-$curr_time = wp_strtotime('now');
-
-$min_date = date("Y-m-d", $curr_time);
-$min_time = date("h:i", $curr_time);
-$min_datetime = $min_date . "T" . $min_time;
-
-$max_date = date("Y-m-d", wp_strtotime("+7 Days"));
-$max_time = date("h:i", $curr_time);
-$max_datetime = $max_date . "T" . $max_time;
+$min_datetime = str_replace(' ', 'T', tz_strtodate('now'));
 ?>
 <div class="wrap">
     <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
