@@ -84,7 +84,7 @@ class Coupon_Admin
 	 */
 	public function enqueue_scripts($hook_suffix)
 	{
-		if ($hook_suffix != 'wp-coupon/admin/partials/coupon-admin-display.php') {
+		if (endsWith('/admin/partials/coupon-admin-display.php', $hook_suffix)) {
 			return;
 		}
 
