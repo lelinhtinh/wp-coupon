@@ -191,9 +191,9 @@ class Coupon_List_Table extends WP_List_Table
 
         // Build hide row action.
         $hide_query_args = [
-            'page'   => $page,
-            'action' => 'hide',
-            'coupon_id'  => $item['ID'],
+            'page'      => $page,
+            'action'    => 'hide',
+            $this->_args['singular'] => $item['ID'],
         ];
 
         $actions['hide'] = sprintf(
@@ -204,9 +204,9 @@ class Coupon_List_Table extends WP_List_Table
 
         // Build delete row action.
         $delete_query_args = [
-            'page'   => $page,
-            'action' => 'delete',
-            'coupon_id'  => $item['ID'],
+            'page'      => $page,
+            'action'    => 'delete',
+            $this->_args['singular'] => $item['ID'],
         ];
 
         $actions['delete'] = sprintf(
@@ -297,8 +297,9 @@ class Coupon_List_Table extends WP_List_Table
     protected function process_bulk_action()
     {
         global $wpdb;
-        if (isset($_GET['coupon_id'])) {
-            $ids = is_array($_GET['coupon_id']) ? implode(',', $_GET['coupon_id']) : $_GET['coupon_id'];
+        if (isset($_GET[$this->_args['singular']])) {
+            $coupon_params = $_GET[$this->_args['singular']];
+            $ids = is_array($coupon_params) ? implode(',', $coupon_params) : $coupon_params;
             switch ($this->current_action()) {
                 case 'hide':
                     $wpdb->query("UPDATE {$wpdb->prefix}oms_coupons SET active = 0 WHERE ID IN($ids)");
