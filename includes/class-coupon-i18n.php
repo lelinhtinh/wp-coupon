@@ -37,7 +37,7 @@ class Coupon_I18n
 	public function load_plugin_textdomain()
 	{
 		load_plugin_textdomain(
-			'coupon',
+			'oms-coupon',
 			false,
 			dirname(dirname(plugin_basename(__FILE__))) . '/languages/'
 		);

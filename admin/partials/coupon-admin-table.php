@@ -64,13 +64,13 @@ class Coupon_Admin_Table extends WP_List_Table
     {
         $columns = [
             'cb'             => '<input type="checkbox" />',   // Render a checkbox instead of text.
-            'code'           => 'Coupon Code',
-            'value'          => 'Discount',
-            'limit'          => 'Usage Limit',
-            'activated_at'   => 'Activation Date',
-            'expired_at'     => 'Expiration Date',
-            'number_of_uses' => 'N. Uses',
-            'used_by'        => 'Used By',
+            'code'           => __('Coupon Code', 'oms-coupon'),
+            'value'          => __('Discount', 'oms-coupon'),
+            'limit'          => __('Usage Limit', 'oms-coupon'),
+            'activated_at'   => __('Activation Date', 'oms-coupon'),
+            'expired_at'     => __('Expiration Date', 'oms-coupon'),
+            'number_of_uses' => __('N. Uses', 'oms-coupon'),
+            'used_by'        => __('Used By', 'oms-coupon'),
         ];
 
         return $columns;
@@ -199,7 +199,7 @@ class Coupon_Admin_Table extends WP_List_Table
         $actions['hide'] = sprintf(
             '<a href="%1$s">%2$s</a>',
             esc_url(wp_nonce_url(add_query_arg($hide_query_args, 'admin.php'), 'hidecoupon_' . $item['ID'])),
-            _x('Hide', 'List table row action', 'wp-list-table-hide')
+            _x('Hide', 'List table row action', 'oms-coupon')
         );
 
         // Build delete row action.
@@ -212,7 +212,7 @@ class Coupon_Admin_Table extends WP_List_Table
         $actions['delete'] = sprintf(
             '<a href="%1$s">%2$s</a>',
             esc_url(wp_nonce_url(add_query_arg($delete_query_args, 'admin.php'), 'deletecoupon_' . $item['ID'])),
-            _x('Delete', 'List table row action', 'wp-list-table-delete')
+            _x('Delete', 'List table row action', 'oms-coupon')
         );
 
         // Return the code contents.
@@ -278,8 +278,8 @@ class Coupon_Admin_Table extends WP_List_Table
     protected function get_bulk_actions()
     {
         $actions = [
-            'hide' => _x('Hide', 'List table bulk action', 'wp-list-table-hide'),
-            'delete' => _x('Delete', 'List table bulk action', 'wp-list-table-delete'),
+            'hide' => _x('Hide', 'List table bulk action', 'oms-coupon'),
+            'delete' => _x('Delete', 'List table bulk action', 'oms-coupon'),
         ];
 
         return $actions;
@@ -331,7 +331,7 @@ class Coupon_Admin_Table extends WP_List_Table
      * @uses $this->get_pagenum()
      * @uses $this->set_pagination_args()
      */
-    function prepare_items()
+    public function prepare_items()
     {
         global $wpdb;
 
@@ -348,22 +348,22 @@ class Coupon_Admin_Table extends WP_List_Table
         $total_items = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}oms_coupons WHERE active = 1");
 
         /*
-		 * REQUIRED. Now we need to define our column headers. This includes a complete
-		 * array of columns to be displayed (slugs & codes), a list of columns
-		 * to keep hidden, and a list of columns that are sortable. Each of these
-		 * can be defined in another method (as we've done here) before being
-		 * used to build the value for our _column_headers property.
-		 */
+         * REQUIRED. Now we need to define our column headers. This includes a complete
+         * array of columns to be displayed (slugs & codes), a list of columns
+         * to keep hidden, and a list of columns that are sortable. Each of these
+         * can be defined in another method (as we've done here) before being
+         * used to build the value for our _column_headers property.
+         */
         $columns  = $this->get_columns();
         $hidden   = [];
         $sortable = $this->get_sortable_columns();
 
         /*
-		 * REQUIRED. Finally, we build an array to be used by the class for column
-		 * headers. The $this->_column_headers property takes an array which contains
-		 * three other arrays. One for all columns, one for hidden columns, and one
-		 * for sortable columns.
-		 */
+         * REQUIRED. Finally, we build an array to be used by the class for column
+         * headers. The $this->_column_headers property takes an array which contains
+         * three other arrays. One for all columns, one for hidden columns, and one
+         * for sortable columns.
+         */
         $this->_column_headers = [$columns, $hidden, $sortable];
 
         /**
@@ -378,8 +378,8 @@ class Coupon_Admin_Table extends WP_List_Table
         $order = !empty($_REQUEST['order']) ? wp_unslash($_REQUEST['order']) : 'desc'; // WPCS: Input var ok.
 
         /*
-		 * GET THE DATA!
-		 */
+         * GET THE DATA!
+         */
         $data = $wpdb->get_results("
             SELECT
                 c.ID, c.code, c.type, c.value, c.limit, c.activated_at, c.expired_at,
@@ -394,9 +394,9 @@ class Coupon_Admin_Table extends WP_List_Table
         ", ARRAY_A);
 
         /*
-		 * REQUIRED. Now we can add our *sorted* data to the items property, where
-		 * it can be used by the rest of the class.
-		 */
+         * REQUIRED. Now we can add our *sorted* data to the items property, where
+         * it can be used by the rest of the class.
+         */
         $this->items = $data;
 
         /**

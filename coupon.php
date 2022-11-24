@@ -21,10 +21,10 @@
  * Requires at least: 1.0.0
  * Requires PHP:      7.0.0
  * Tested up to:      6.1.1
- * Author URI:        https://github.com/lelinhtinh/
+ * Author URI:        https://github.com/lelinhtinh
  * License:           GPL-2.0+
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.txt
- * Text Domain:       coupon
+ * Text Domain:       oms-coupon
  * Domain Path:       /languages
  */
 
