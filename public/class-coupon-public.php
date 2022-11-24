@@ -167,7 +167,10 @@ class Coupon_Public
 		$used_by_id = explode(',', $findOne->used_by_id ?? '');
 		$is_disable = (!is_null($findOne->expired_at) && tz_strtodate($findOne->expired_at, true) < tz_strtodate('now', true))
 			|| $findOne->limit === $findOne->number_of_uses
-			|| ($user_id !== 0 && in_array($user_id, $used_by_id));
+			|| (is_user_logged_in() && in_array($user_id, $used_by_id));
+		$save_button = is_user_logged_in()
+			? '<button class="oms-coupon-save-btn oms-coupon-user" data-id="' . $coupon_id . '"' . ($is_disable ? ' disabled' : '') . '>Save</button>'
+			: '<a class="oms-coupon-save-btn oms-coupon-nopriv" href="' . wp_login_url(get_permalink()) . '">Save</a>';
 
 		return sprintf(
 			<<<EOL
@@ -178,8 +181,7 @@ class Coupon_Public
 						<div class="oms-coupon-remaining">Remaining uses: <strong>%6\$d</strong></div>
 					</div>
 					<div class="oms-coupon-save">
-						<button class="oms-coupon-save-btn oms-coupon-user" data-id="%1\$d" %8\$s>Save</button>
-						<a class="oms-coupon-save-btn oms-coupon-nopriv" href="%9\$s">Save</a>
+						%8\$s
 						<span class="oms-coupon-expire"></span>
 					</div>
 					<div class="oms-coupon-timer"></div>
@@ -192,8 +194,7 @@ class Coupon_Public
 			get_discount_string($outData, 'Discount '),
 			$remaining,
 			$is_disable ? ' oms-coupon-disable' : '',
-			$is_disable ? ' disabled' : '',
-			wp_login_url(get_permalink())
+			$save_button,
 		);
 	}
 
