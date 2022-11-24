@@ -58,8 +58,9 @@
 }
 
 .oms-coupon-discount {
-  flex-grow: 1;
+  margin-top: 0.8em;
   font-size: 0.8em;
+  color: #ff7d14;
 }
 
 .oms-coupon-remaining {
@@ -68,6 +69,11 @@
   margin-right: 10px;
   color: silver;
   font-weight: 300;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: flex-end;
 }
 
 .oms-coupon-remaining strong {

@@ -174,14 +174,14 @@ class Coupon_Public
 
 		return sprintf(
 			<<<EOL
-				<div class="oms-coupon-wrapper%7\$s" data-id="%1\$d" data-activation-time="%3\$d" data-expiration-time="%4\$d">
+				<div class="oms-coupon-wrapper%8\$s" data-id="%1\$d" data-activation-time="%3\$d" data-expiration-time="%4\$d">
 					<div class="oms-coupon-content">
 					<div class="oms-coupon-code">%2\$s</div>
-						<div class="oms-coupon-discount">%5\$s</div>
-						<div class="oms-coupon-remaining">Remaining uses: <strong>%6\$d</strong></div>
+						<div class="oms-coupon-discount">%5\$s <strong>%6\$s</strong></div>
+						<div class="oms-coupon-remaining">%10\$s: <strong>%7\$d</strong></div>
 					</div>
 					<div class="oms-coupon-save">
-						%8\$s
+						%9\$s
 						<span class="oms-coupon-expire"></span>
 					</div>
 					<div class="oms-coupon-timer"></div>
@@ -191,10 +191,12 @@ class Coupon_Public
 			$outData['code'],
 			$outData['activated_at'],
 			$outData['expired_at'],
-			get_discount_string($outData, 'Discount '),
+			__('Discount', 'oms-coupon'),
+			get_discount_string($outData),
 			$remaining,
 			$is_disable ? ' oms-coupon-disable' : '',
 			$save_button,
+			__('Remaining uses', 'oms-coupon'),
 		);
 	}
 
@@ -202,8 +204,8 @@ class Coupon_Public
 	{
 		add_submenu_page(
 			plugin_dir_path(dirname(__FILE__)) . 'admin/partials/coupon-admin-display.php',
-			'OMS Coupon List',
-			'Coupon List',
+			__('OMS Coupon List', 'oms-coupon'),
+			__('Coupon List', 'oms-coupon'),
 			'read',
 			plugin_dir_path(__FILE__) . 'partials/coupon-public-display.php',
 			null,
@@ -241,7 +243,7 @@ class Coupon_Public
 		if (is_null($findOne)) {
 			wp_send_json([
 				'status' => 'error',
-				'message' => 'Coupon not avaliable',
+				'message' => __('Coupon not avaliable', 'oms-coupon'),
 			]);
 		}
 
@@ -249,7 +251,7 @@ class Coupon_Public
 		if (in_array($user_id, $used_by_id)) {
 			wp_send_json([
 				'status' => 'error',
-				'message' => 'You got it, at ' . $findOne->saved_at,
+				'message' => __('You got it, at ', 'oms-coupon') . $findOne->saved_at,
 			]);
 		}
 

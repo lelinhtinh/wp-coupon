@@ -1,11 +1,11 @@
 <?php
 
-function get_discount_string($item, $pre = '')
+function get_discount_string($item)
 {
     $currency_symbol = '₫';
     return empty($item['value'])
         ? ''
-        : $pre . ($item['type'] === 'numeric'
+        : ($item['type'] === 'numeric'
             ? number_format($item['value'], 0, '', ',')
             : $item['value']
         ) . ($item['type'] === 'numeric' ? $currency_symbol : '%');

@@ -21,38 +21,38 @@ $min_datetime = substr(str_replace(' ', 'T', tz_strtodate('now')), 0, -3);
         <table>
             <tbody>
                 <tr>
-                    <th scope="row"><label for="code">Coupon Code <code class="status-error" title="Require">*</code></label></th>
+                    <th scope="row"><label for="code"><?php _e('Coupon Code', 'oms-coupon') ?> <code class="status-error" title="<?php _e('Require', 'oms-coupon') ?>">*</code></label></th>
                     <td colspan="2">
                         <input name="code" type="text" id="code" value="" class="regular-text" minlength="3" maxlength="16" pattern="[a-z0-z_-]{3,16}" autofocus required />
-                        <p class="description">From 3 to 16 characters. Allow alphanumerics, dashes and underscores.</p>
+                        <p class="description"><?php _e('From 3 to 16 characters. Allow alphanumerics, dashes and underscores.', 'oms-coupon') ?></p>
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="limit">Usage Limit <code class="status-error" title="Require">*</code></label></th>
+                    <th scope="row"><label for="limit"><?php _e('Usage Limit', 'oms-coupon') ?> <code class="status-error" title="<?php _e('Require', 'oms-coupon') ?>">*</code></label></th>
                     <td colspan="2"><input name="limit" type="number" min="0" step="1" id="limit" value="" class="small-text" required /></td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="type">Discount Value</label></th>
+                    <th scope="row"><label for="type"><?php _e('Discount Value', 'oms-coupon') ?></label></th>
                     <td><input name="value" type="number" min="0" step="1" id="value" value="" class="regular-text" /></td>
                     <td>
                         <select name="type" id="type">
-                            <option selected="selected" value="percentage">Percentage</option>
-                            <option value="numeric">Numeric (₫)</option>
+                            <option selected="selected" value="percentage"><?php _e('Percentage', 'oms-coupon') ?></option>
+                            <option value="numeric"><?php _e('Numeric (₫)', 'oms-coupon') ?></option>
                         </select>
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="activated_at">Activation Date</label></th>
+                    <th scope="row"><label for="activated_at"><?php _e('Activation Date', 'oms-coupon') ?></label></th>
                     <td colspan="2"><input name="activated_at" type="datetime-local" id="activated_at" value="" class="regular-text" min="<?php echo $min_datetime ?>" /></td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="expired_at">Expiration Date</label></th>
+                    <th scope="row"><label for="expired_at"><?php _e('Expiration Date', 'oms-coupon') ?></label></th>
                     <td colspan="2"><input name="expired_at" type="datetime-local" id="expired_at" value="" class="regular-text" min="<?php echo $min_datetime ?>" /></td>
                 </tr>
             </tbody>
         </table>
         <p class="submit">
-            <input type="submit" name="submit" id="submit" class="button button-primary button-large" value="Create Coupon" />
+            <input type="submit" name="submit" id="submit" class="button button-primary button-large" value="<?php _e('Create Coupon', 'oms-coupon') ?>" />
             &nbsp;&nbsp;&nbsp;&nbsp;
             <span class="status-error" id="help_text"></span>
         </p>

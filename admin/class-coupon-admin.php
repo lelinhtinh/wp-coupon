@@ -104,8 +104,8 @@ class Coupon_Admin
 	public function options_admin()
 	{
 		add_menu_page(
-			'OMS Coupon Manager',
-			'Coupon Manager',
+			__('OMS Coupon Manager', 'oms-coupon'),
+			__('Coupon Manager', 'oms-coupon'),
 			'manage_options',
 			plugin_dir_path(__FILE__) . 'partials/coupon-admin-display.php',
 			null,
@@ -130,7 +130,7 @@ class Coupon_Admin
 		if (!is_null($findOne)) {
 			wp_send_json([
 				'status' => 'error',
-				'message' => 'Coupon code already exists'
+				'message' => __('Coupon Code already exists', 'oms-coupon')
 			], 400);
 		}
 
@@ -145,7 +145,7 @@ class Coupon_Admin
 		) {
 			wp_send_json([
 				'status' => 'error',
-				'message' => 'Expiration Date must be after Activation Date'
+				'message' => __('Expiration Date must be after Activation Date', 'oms-coupon')
 			], 422);
 		}
 
