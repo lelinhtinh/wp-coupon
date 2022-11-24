@@ -1,64 +1,63 @@
-(function ($) {
+jQuery(function ($) {
   'use strict';
 
-  $(function () {
-    const $form = $('#oms_coupon_form');
-    const $helpText = $('#help_text');
-    const $list = $('#the-list');
-    const $code = $('#code');
-    const currencySymbol = '₫';
+  const $form = $('#oms_coupon_form');
+  const $helpText = $('#help_text');
+  const $list = $('#the-list');
+  const $code = $('#code');
+  const currencySymbol = '₫';
 
-    $list.on('click', '.oms-coupon-shortcode, .oms-coupon-copy', (e) => {
-      e.preventDefault();
-      const $shortcode = $(e.target);
-      const shortcodeContent = $shortcode.text();
+  $list.on('click', '.oms-coupon-shortcode, .oms-coupon-copy', (e) => {
+    e.preventDefault();
+    const $shortcode = $(e.target);
+    const shortcodeContent = $shortcode.text();
 
-      navigator.clipboard
-        .writeText(
-          !$shortcode.hasClass('oms-coupon-copy')
-            ? `[oms_coupon id="${$shortcode.data('id')}"]`
-            : $shortcode.data('code').toUpperCase()
-        )
-        .then(
-          () => {
-            $shortcode.text('Coppied!');
-            setTimeout(() => {
-              $shortcode.text(shortcodeContent);
-            }, 400);
-          },
-          () => {
-            window.getSelection().selectAllChildren(e.target);
-          }
-        );
-    });
+    navigator.clipboard
+      .writeText(
+        !$shortcode.hasClass('oms-coupon-copy')
+          ? `[oms_coupon id="${$shortcode.data('id')}"]`
+          : $shortcode.data('code').toUpperCase()
+      )
+      .then(
+        () => {
+          $shortcode.text('Coppied!');
+          setTimeout(() => {
+            $shortcode.text(shortcodeContent);
+          }, 400);
+        },
+        () => {
+          window.getSelection().selectAllChildren(e.target);
+        }
+      );
+  });
 
-    $form.on('submit', (e) => {
-      e.preventDefault();
-      $helpText.text('');
-      $form[0].checkValidity();
+  $form.on('submit', (e) => {
+    e.preventDefault();
+    $helpText.text('');
+    $form[0].checkValidity();
 
-      const data = $form.serializeArray().reduce((curr, { name, value }) => {
-        curr[name] = value || null;
-        return curr;
-      }, {});
+    const data = $form.serializeArray().reduce((curr, { name, value }) => {
+      curr[name] = value || null;
+      return curr;
+    }, {});
 
-      $.post(oms_coupon_admin_ajax.ajax_url, {
-        _ajax_nonce: oms_coupon_admin_ajax.nonce,
-        action: 'oms_coupon_create',
-        ...data,
-      })
-        .done((data) => {
-          const { ID, code, value, type, limit, activated_at, expired_at } =
-            data.data;
-          if (ID === 0) {
-            $helpText.text('Server error!');
-            return;
-          }
+    $.post(oms_coupon_admin_ajax.ajax_url, {
+      _ajax_nonce: oms_coupon_admin_ajax.nonce,
+      action: 'oms_coupon_create',
+      ...data,
+    })
+      .done((data) => {
+        const { ID, code, value, type, limit, activated_at, expired_at } =
+          data.data;
+        if (ID === 0) {
+          $helpText.text('Server error!');
+          return;
+        }
 
-          $code.trigger('focus');
-          $form[0].reset();
+        $code.trigger('focus');
+        $form[0].reset();
 
-          const row = `
+        const row = `
 <tr>
   <th scope="row" class="check-column">
     <input type="checkbox" name="coupon[]" value="${ID}" />
@@ -73,16 +72,16 @@
       <span class="hide">
         <a
           href="admin.php?page=wp-coupon%2Fadmin%2Fpartials%2Fcoupon-admin-display.php&amp;action=hide&amp;coupon=${ID}&amp;_wpnonce=${
-            oms_coupon_admin_ajax.nonce
-          }"
+          oms_coupon_admin_ajax.nonce
+        }"
         >Hide</a>
       </span>
       |
       <span class="delete">
         <a
           href="admin.php?page=wp-coupon%2Fadmin%2Fpartials%2Fcoupon-admin-display.php&amp;action=delete&amp;coupon=${ID}&amp;_wpnonce=${
-            oms_coupon_admin_ajax.nonce
-          }"
+          oms_coupon_admin_ajax.nonce
+        }"
         >Delete</a>
       </span>
     </div>
@@ -111,19 +110,18 @@
   <td class="used_by column-used_by" data-colname="Used By"></td>
 </tr>
 `;
-          const $noItem = $list.find('.no-items');
-          if ($noItem.length) {
-            $noItem.replaceWith(row);
-          } else {
-            $list.prepend(row);
-            $('.displaying-num').text((e, val) =>
-              val.replace(/\d+/, (d) => parseInt(d, 10) + 1)
-            );
-          }
-        })
-        .catch((e) => {
-          $helpText.text(e?.responseJSON?.message ?? 'An unknown error');
-        });
-    });
+        const $noItem = $list.find('.no-items');
+        if ($noItem.length) {
+          $noItem.replaceWith(row);
+        } else {
+          $list.prepend(row);
+          $('.displaying-num').text((e, val) =>
+            val.replace(/\d+/, (d) => parseInt(d, 10) + 1)
+          );
+        }
+      })
+      .catch((e) => {
+        $helpText.text(e?.responseJSON?.message ?? 'An unknown error');
+      });
   });
-})(jQuery);
+});
