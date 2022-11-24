@@ -2,10 +2,10 @@
 
 WordPress Coupon plugin to promote affiliate coupon and deals on your WordPress site.
 
-## [Screenshots](./screenshots/)
+## [Screenshots](./assets/)
 
-![coupon manager](screenshots/coupon-manager.png)
+![coupon manager](./assets/screenshot-1.png)
 
-![display coupon](screenshots/display-coupon.png)
+![display coupon](./assets/screenshot-2.png)
 
-![user coupon list](screenshots/user-coupon-list.png)
+![user coupon list](./assets/screenshot-3.png)
