@@ -167,7 +167,7 @@ class Coupon_Public
 		$used_by_id = explode(',', $findOne->used_by_id ?? '');
 		$is_disable = (!is_null($findOne->expired_at) && tz_strtodate($findOne->expired_at, true) < tz_strtodate('now', true))
 			|| $findOne->limit === $findOne->number_of_uses
-			|| in_array($user_id, $used_by_id);
+			|| ($user_id !== 0 && in_array($user_id, $used_by_id));
 
 		return sprintf(
 			<<<EOL
