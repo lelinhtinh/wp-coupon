@@ -64,13 +64,13 @@ class Coupon_Public_Table extends WP_List_Table
     {
         $columns = [
             'cb'         => '<input type="checkbox" />',   // Render a checkbox instead of text.
-            'code'       => __('Coupon Code', 'oms-coupon'),
-            'value'      => __('Discount', 'oms-coupon'),
-            'saved_at'   => __('Saved Date', 'oms-coupon'),
-            'expired_at' => __('Expiration Date', 'oms-coupon'),
+            'code'       => esc_html__('Coupon Code', 'oms-coupon'),
+            'value'      => esc_html__('Discount', 'oms-coupon'),
+            'saved_at'   => esc_html__('Saved Date', 'oms-coupon'),
+            'expired_at' => esc_html__('Expiration Date', 'oms-coupon'),
         ];
         if (current_user_can('administrator')) {
-            $columns['display_name'] = __('User Name', 'oms-coupon');
+            $columns['display_name'] = esc_html__('User Name', 'oms-coupon');
         }
 
         return $columns;
@@ -201,7 +201,7 @@ class Coupon_Public_Table extends WP_List_Table
             $actions['hide'] = sprintf(
                 '<a href="%1$s">%2$s</a>',
                 esc_url(wp_nonce_url(add_query_arg($hide_query_args, 'admin.php'), 'hidecoupon_' . $item['ID'])),
-                _x('Hide', 'List table row action', 'oms-coupon')
+                esc_html_x('Hide', 'List table row action', 'oms-coupon')
             );
         }
 
@@ -216,7 +216,7 @@ class Coupon_Public_Table extends WP_List_Table
             $actions['delete'] = sprintf(
                 '<a href="%1$s">%2$s</a>',
                 esc_url(wp_nonce_url(add_query_arg($delete_query_args, 'admin.php'), 'deletecoupon_' . $item['ID'])),
-                _x('Delete', 'List table row action', 'oms-coupon')
+                esc_html_x('Delete', 'List table row action', 'oms-coupon')
             );
         }
 
@@ -264,10 +264,10 @@ class Coupon_Public_Table extends WP_List_Table
     protected function get_bulk_actions()
     {
         $actions = [
-            'hide' => _x('Hide', 'List table bulk action', 'oms-coupon'),
+            'hide' => esc_html_x('Hide', 'List table bulk action', 'oms-coupon'),
         ];
         if (current_user_can('administrator')) {
-            $actions['delete'] =  _x('Delete', 'List table bulk action', 'oms-coupon');
+            $actions['delete'] =  esc_html_x('Delete', 'List table bulk action', 'oms-coupon');
         }
 
         return $actions;

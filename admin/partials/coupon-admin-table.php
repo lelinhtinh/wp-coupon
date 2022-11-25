@@ -64,13 +64,13 @@ class Coupon_Admin_Table extends WP_List_Table
     {
         $columns = [
             'cb'             => '<input type="checkbox" />',   // Render a checkbox instead of text.
-            'code'           => __('Coupon Code', 'oms-coupon'),
-            'value'          => __('Discount', 'oms-coupon'),
-            'limit'          => __('Usage Limit', 'oms-coupon'),
-            'activated_at'   => __('Activation Date', 'oms-coupon'),
-            'expired_at'     => __('Expiration Date', 'oms-coupon'),
-            'number_of_uses' => __('N. Uses', 'oms-coupon'),
-            'used_by'        => __('Used By', 'oms-coupon'),
+            'code'           => esc_html__('Coupon Code', 'oms-coupon'),
+            'value'          => esc_html__('Discount', 'oms-coupon'),
+            'limit'          => esc_html__('Usage Limit', 'oms-coupon'),
+            'activated_at'   => esc_html__('Activation Date', 'oms-coupon'),
+            'expired_at'     => esc_html__('Expiration Date', 'oms-coupon'),
+            'number_of_uses' => esc_html__('N. Uses', 'oms-coupon'),
+            'used_by'        => esc_html__('Used By', 'oms-coupon'),
         ];
 
         return $columns;
@@ -199,7 +199,7 @@ class Coupon_Admin_Table extends WP_List_Table
         $actions['hide'] = sprintf(
             '<a href="%1$s">%2$s</a>',
             esc_url(wp_nonce_url(add_query_arg($hide_query_args, 'admin.php'), 'hidecoupon_' . $item['ID'])),
-            _x('Hide', 'List table row action', 'oms-coupon')
+            esc_html_x('Hide', 'List table row action', 'oms-coupon')
         );
 
         // Build delete row action.
@@ -212,7 +212,7 @@ class Coupon_Admin_Table extends WP_List_Table
         $actions['delete'] = sprintf(
             '<a href="%1$s">%2$s</a>',
             esc_url(wp_nonce_url(add_query_arg($delete_query_args, 'admin.php'), 'deletecoupon_' . $item['ID'])),
-            _x('Delete', 'List table row action', 'oms-coupon')
+            esc_html_x('Delete', 'List table row action', 'oms-coupon')
         );
 
         // Return the code contents.
@@ -278,8 +278,8 @@ class Coupon_Admin_Table extends WP_List_Table
     protected function get_bulk_actions()
     {
         $actions = [
-            'hide' => _x('Hide', 'List table bulk action', 'oms-coupon'),
-            'delete' => _x('Delete', 'List table bulk action', 'oms-coupon'),
+            'hide' => esc_html_x('Hide', 'List table bulk action', 'oms-coupon'),
+            'delete' => esc_html_x('Delete', 'List table bulk action', 'oms-coupon'),
         ];
 
         return $actions;

@@ -191,12 +191,12 @@ class Coupon_Public
 			$outData['code'],
 			$outData['activated_at'],
 			$outData['expired_at'],
-			__('Discount', 'oms-coupon'),
+			esc_html__('Discount', 'oms-coupon'),
 			get_discount_string($outData),
 			$remaining,
 			$is_disable ? ' oms-coupon-disable' : '',
 			$save_button,
-			__('Remaining uses', 'oms-coupon'),
+			esc_html__('Remaining uses', 'oms-coupon'),
 		);
 	}
 
@@ -204,8 +204,8 @@ class Coupon_Public
 	{
 		add_submenu_page(
 			plugin_dir_path(dirname(__FILE__)) . 'admin/partials/coupon-admin-display.php',
-			__('OMS Coupon List', 'oms-coupon'),
-			__('Coupon List', 'oms-coupon'),
+			esc_html__('OMS Coupon List', 'oms-coupon'),
+			esc_html__('Coupon List', 'oms-coupon'),
 			'read',
 			plugin_dir_path(__FILE__) . 'partials/coupon-public-display.php',
 			null,
@@ -243,7 +243,7 @@ class Coupon_Public
 		if (is_null($findOne)) {
 			wp_send_json([
 				'status' => 'error',
-				'message' => __('Coupon not avaliable', 'oms-coupon'),
+				'message' => esc_html__('Coupon not avaliable', 'oms-coupon'),
 			]);
 		}
 
@@ -251,7 +251,7 @@ class Coupon_Public
 		if (in_array($user_id, $used_by_id)) {
 			wp_send_json([
 				'status' => 'error',
-				'message' => __('You got it, at ', 'oms-coupon') . $findOne->saved_at,
+				'message' => esc_html__('You got it, at ', 'oms-coupon') . $findOne->saved_at,
 			]);
 		}
 
