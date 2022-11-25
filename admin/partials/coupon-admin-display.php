@@ -43,11 +43,11 @@ $min_datetime = substr(str_replace(' ', 'T', tz_strtodate('now')), 0, -3);
                 </tr>
                 <tr>
                     <th scope="row"><label for="activated_at"><?php esc_html_e('Activation Date', 'oms-coupon') ?></label></th>
-                    <td colspan="2"><input name="activated_at" type="datetime-local" id="activated_at" value="" class="regular-text" min="<?php echo $min_datetime ?>" /></td>
+                    <td colspan="2"><input name="activated_at" type="datetime-local" id="activated_at" value="" class="regular-text" min="<?php esc_attr($min_datetime) ?>" /></td>
                 </tr>
                 <tr>
                     <th scope="row"><label for="expired_at"><?php esc_html_e('Expiration Date', 'oms-coupon') ?></label></th>
-                    <td colspan="2"><input name="expired_at" type="datetime-local" id="expired_at" value="" class="regular-text" min="<?php echo $min_datetime ?>" /></td>
+                    <td colspan="2"><input name="expired_at" type="datetime-local" id="expired_at" value="" class="regular-text" min="<?php esc_attr($min_datetime) ?>" /></td>
                 </tr>
             </tbody>
         </table>
@@ -66,7 +66,7 @@ $coupon_list_table->prepare_items();
 ?>
 <div class="wrap">
     <form id="movies-filter" method="get">
-        <input type="hidden" name="page" value="<?php echo $_REQUEST['page'] ?>" />
+        <input type="hidden" name="page" value="<?php esc_attr($_REQUEST['page']) ?>" />
         <?php $coupon_list_table->display() ?>
     </form>
 </div>
