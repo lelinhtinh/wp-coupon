@@ -117,7 +117,7 @@ class Coupon_Admin
 	public function create_coupon()
 	{
 		check_ajax_referer($this->plugin_prefix . $this->plugin_name . '_create_nonce');
-		if (!$_POST['action'] || $_POST['action'] != 'oms_coupon_create' || !current_user_can('administrator')) {
+		if (!$_POST['action'] || $_POST['action'] !== 'oms_coupon_create' || !current_user_can('administrator')) {
 			header('Status: 403 Forbidden', true, 403);
 			wp_die();
 		}
@@ -126,7 +126,10 @@ class Coupon_Admin
 		$code = sanitize_key($_POST['code']);
 
 		global $wpdb;
-		$findOne = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}oms_coupons WHERE code = '{$code}'", OBJECT);
+		$findOne = $wpdb->get_row($wpdb->prepare(
+			"SELECT * FROM {$wpdb->prefix}oms_coupons WHERE code = '%s'",
+			$code,
+		), OBJECT);
 		if (!is_null($findOne)) {
 			wp_send_json([
 				'status' => 'error',

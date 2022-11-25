@@ -188,7 +188,7 @@ class Coupon_Public_Table extends WP_List_Table
     protected function column_code($item)
     {
         $user_id = get_current_user_id();
-        $page = wp_unslash($_REQUEST['page']); // WPCS: Input var ok.
+        $page = wp_unslash($_REQUEST['page']);
 
         if ($item['user_id'] == $user_id) {
             // Build hide row action.
@@ -267,7 +267,7 @@ class Coupon_Public_Table extends WP_List_Table
             'hide' => esc_html_x('Hide', 'List table bulk action', 'oms-coupon'),
         ];
         if (current_user_can('administrator')) {
-            $actions['delete'] =  esc_html_x('Delete', 'List table bulk action', 'oms-coupon');
+            $actions['delete'] = esc_html_x('Delete', 'List table bulk action', 'oms-coupon');
         }
 
         return $actions;
@@ -288,15 +288,22 @@ class Coupon_Public_Table extends WP_List_Table
         $user_id = get_current_user_id();
 
         if (isset($_GET[$this->_args['singular']])) {
-            $coupon_params = $_GET[$this->_args['singular']];
+            $coupon_params = wp_unslash($_GET[$this->_args['singular']]);
             $ids = is_array($coupon_params) ? implode(',', $coupon_params) : $coupon_params;
 
             if ($this->current_action() === 'hide') {
-                $wpdb->query("UPDATE {$wpdb->prefix}oms_coupons_user SET active = 0 WHERE oms_coupon_id IN({$ids}) AND user_id = {$user_id}");
+                $wpdb->query($wpdb->prepare(
+                    "UPDATE {$wpdb->prefix}oms_coupons_user SET active = 0 WHERE oms_coupon_id IN(%s) AND user_id = %d",
+                    $ids,
+                    $user_id,
+                ));
             }
 
             if ($this->current_action() === 'delete' && current_user_can('administrator')) {
-                $wpdb->query("DELETE FROM {$wpdb->prefix}oms_coupons_user WHERE oms_coupon_id IN({$ids})");
+                $wpdb->query($wpdb->prepare(
+                    "DELETE FROM {$wpdb->prefix}oms_coupons_user WHERE oms_coupon_id IN(%s)",
+                    $ids,
+                ));
             }
         }
     }
@@ -335,7 +342,7 @@ class Coupon_Public_Table extends WP_List_Table
          */
         $total_items = $wpdb->get_var(
             "SELECT COUNT(*) FROM {$wpdb->prefix}oms_coupons_user WHERE active = 1"
-                . (current_user_can('administrator') ? '' : " AND user_id = {$user_id}")
+                . current_user_can('administrator') ? '' : $wpdb->prepare(" AND user_id = %d", $user_id)
         );
 
         /*
@@ -364,35 +371,49 @@ class Coupon_Public_Table extends WP_List_Table
         $this->process_bulk_action();
 
         // If no sort, default to user_id.
-        $orderby = !empty($_REQUEST['orderby']) ? wp_unslash($_REQUEST['orderby']) : 'user_id'; // WPCS: Input var ok.
-        $orderby = ($orderby === 'saved_at' || $orderby === 'user_id' ? 'cu.' : ($orderby === 'display_name' ? 'u.' : 'c.')) . $orderby;
-        // If no order, default to asc.
-        $order = !empty($_REQUEST['order']) ? wp_unslash($_REQUEST['order']) : 'asc'; // WPCS: Input var ok.
+        $orderby     = !empty($_REQUEST['orderby']) && in_array($_REQUEST['orderby'], $sortable, true) ? $_REQUEST['orderby'] : 'user_id';
+        $orderby     = ($orderby === 'saved_at' || $orderby === 'user_id'
+            ? 'cu.'
+            : ($orderby === 'display_name' ? 'u.' : 'c.')
+        ) . $orderby;
+        $order       = !empty($_REQUEST['order']) && 'DESC' === strtoupper($_REQUEST['order']) ? 'DESC' : 'ASC';
+        $orderby_sql = sanitize_sql_orderby("{$orderby} {$order}");
 
         /*
          * GET THE DATA!
          */
         if (current_user_can('administrator')) {
-            $data = $wpdb->get_results("
+            $data = $wpdb->get_results($wpdb->prepare(
+                "
                 SELECT
                     c.ID, c.code, c.type, c.value, c.expired_at, cu.saved_at, cu.user_id, u.display_name
                 FROM {$wpdb->prefix}oms_coupons AS c
                 LEFT JOIN {$wpdb->prefix}oms_coupons_user AS cu ON cu.oms_coupon_id = c.ID
                 LEFT JOIN {$wpdb->prefix}users AS u ON cu.user_id = u.ID
                 WHERE cu.active = 1
-                ORDER BY {$orderby} {$order}
-                LIMIT {$per_page} OFFSET {$offset_page}
-            ", ARRAY_A);
+                ORDER BY %s
+                LIMIT %d OFFSET %d
+                ",
+                $orderby_sql,
+                $per_page,
+                $offset_page,
+            ), ARRAY_A);
         } else {
-            $data = $wpdb->get_results("
+            $data = $wpdb->get_results($wpdb->prepare(
+                "
                 SELECT
                     c.ID, c.code, c.type, c.value, c.expired_at, cu.saved_at, cu.user_id
                 FROM {$wpdb->prefix}oms_coupons AS c
                 LEFT JOIN {$wpdb->prefix}oms_coupons_user AS cu ON cu.oms_coupon_id = c.ID
-                WHERE cu.active = 1 AND user_id = {$user_id}
-                ORDER BY {$orderby} {$order}
-                LIMIT {$per_page} OFFSET {$offset_page}
-            ", ARRAY_A);
+                WHERE cu.active = 1 AND user_id = %d
+                ORDER BY %s
+                LIMIT %d OFFSET %d
+                ",
+                $user_id,
+                $orderby_sql,
+                $per_page,
+                $offset_page,
+            ), ARRAY_A);
         }
 
         /*

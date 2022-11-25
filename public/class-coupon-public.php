@@ -139,18 +139,21 @@ class Coupon_Public
 		$coupon_id = intval($atts['id']);
 
 		global $wpdb;
-		$findOne = $wpdb->get_row("
+		$findOne = $wpdb->get_row($wpdb->prepare(
+			"
 			SELECT
 				c.ID, c.code, c.type, c.value, c.limit, c.activated_at, c.expired_at,
 				COUNT(cu.user_id) AS number_of_uses, GROUP_CONCAT(cu.user_id SEPARATOR ',') AS used_by_id
 			FROM {$wpdb->prefix}oms_coupons AS c
 			LEFT JOIN {$wpdb->prefix}oms_coupons_user AS cu ON cu.oms_coupon_id = c.ID
-			WHERE c.ID = {$coupon_id} AND c.active = 1
+			WHERE c.ID = %d AND c.active = 1
 			GROUP BY c.ID, c.code, c.type, c.value, c.limit, c.activated_at, c.expired_at
-		", OBJECT);
+			",
+			$coupon_id,
+		), OBJECT);
 
 		if (is_null($findOne)) {
-			return '<script>console.warn("%c Coupon not found: ' . $coupon_id . '", "color:#ff5722")</script>';
+			return '<script>console.warn("%c Coupon not found: ' . esc_attr($coupon_id) . '", "color:#ff5722")</script>';
 		}
 
 		$outData = [
@@ -173,20 +176,20 @@ class Coupon_Public
 			: '<a class="oms-coupon-save-btn oms-coupon-nopriv" href="' . wp_login_url(get_permalink()) . '">Save</a>';
 
 		return sprintf(
-			<<<EOL
-				<div class="oms-coupon-wrapper%8\$s" data-id="%1\$d" data-activation-time="%3\$d" data-expiration-time="%4\$d">
-					<div class="oms-coupon-content">
-					<div class="oms-coupon-code">%2\$s</div>
-						<div class="oms-coupon-discount">%5\$s <strong>%6\$s</strong></div>
-						<div class="oms-coupon-remaining">%10\$s: <strong>%7\$d</strong></div>
-					</div>
-					<div class="oms-coupon-save">
-						%9\$s
-						<span class="oms-coupon-expire"></span>
-					</div>
-					<div class="oms-coupon-timer"></div>
+			"
+			<div class=\"oms-coupon-wrapper%8\$s\" data-id=\"%1\$d\" data-activation-time=\"%3\$d\" data-expiration-time=\"%4\$d\">
+				<div class=\"oms-coupon-content\">
+				<div class=\"oms-coupon-code\">%2\$s</div>
+					<div class=\"oms-coupon-discount\">%5\$s <strong>%6\$s</strong></div>
+					<div class=\"oms-coupon-remaining\">%10\$s: <strong>%7\$d</strong></div>
 				</div>
-			EOL,
+				<div class=\"oms-coupon-save\">
+					%9\$s
+					<span class=\"oms-coupon-expire\"></span>
+				</div>
+				<div class=\"oms-coupon-timer\"></div>
+			</div>
+			",
 			$coupon_id,
 			$outData['code'],
 			$outData['activated_at'],
@@ -215,7 +218,7 @@ class Coupon_Public
 	public function save_coupon()
 	{
 		check_ajax_referer($this->plugin_prefix . $this->plugin_name . '_save_nonce');
-		if (!$_POST['action'] || $_POST['action'] != 'oms_coupon_save') {
+		if (!$_POST['action'] || $_POST['action'] !== 'oms_coupon_save') {
 			header('Status: 403 Forbidden', true, 403);
 			wp_die();
 		}
@@ -226,19 +229,23 @@ class Coupon_Public
 
 		global $wpdb;
 
-		$findOne = $wpdb->get_row("
+		$findOne = $wpdb->get_row($wpdb->prepare(
+			"
 			SELECT
 			    c.ID, c.limit,
 			    COUNT(cu.user_id) AS number_of_uses, GROUP_CONCAT(cu.user_id SEPARATOR ',') AS used_by_id
 			FROM {$wpdb->prefix}oms_coupons AS c
             LEFT JOIN {$wpdb->prefix}oms_coupons_user AS cu ON cu.oms_coupon_id = c.ID
 			WHERE
-				c.ID = {$coupon_id} AND c.active = 1
-				AND ( ( c.activated_at IS NOT NULL AND c.activated_at < '{$now}' ) OR c.activated_at IS NULL )
-				AND ( ( c.expired_at IS NOT NULL AND c.expired_at > '{$now}' ) OR c.expired_at IS NULL )
+				c.ID = %d AND c.active = 1
+				AND ( ( c.activated_at IS NOT NULL AND c.activated_at < '%s' ) OR c.activated_at IS NULL )
+				AND ( ( c.expired_at IS NOT NULL AND c.expired_at > '%s' ) OR c.expired_at IS NULL )
 			GROUP BY c.ID, c.limit
 			HAVING c.limit > number_of_uses
-		", OBJECT);
+			",
+			$coupon_id,
+			$now,
+		), OBJECT);
 
 		if (is_null($findOne)) {
 			wp_send_json([

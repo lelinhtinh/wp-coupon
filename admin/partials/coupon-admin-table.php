@@ -187,7 +187,7 @@ class Coupon_Admin_Table extends WP_List_Table
      */
     protected function column_code($item)
     {
-        $page = wp_unslash($_REQUEST['page']); // WPCS: Input var ok.
+        $page = wp_unslash($_REQUEST['page']);
 
         // Build hide row action.
         $hide_query_args = [
@@ -298,15 +298,24 @@ class Coupon_Admin_Table extends WP_List_Table
     {
         global $wpdb;
         if (isset($_GET[$this->_args['singular']])) {
-            $coupon_params = $_GET[$this->_args['singular']];
+            $coupon_params = wp_unslash($_GET[$this->_args['singular']]);
             $ids = is_array($coupon_params) ? implode(',', $coupon_params) : $coupon_params;
             switch ($this->current_action()) {
                 case 'hide':
-                    $wpdb->query("UPDATE {$wpdb->prefix}oms_coupons SET active = 0 WHERE ID IN({$ids})");
+                    $wpdb->query($wpdb->prepare(
+                        "UPDATE {$wpdb->prefix}oms_coupons SET active = 0 WHERE ID IN(%s)",
+                        $ids,
+                    ));
                     break;
                 case 'delete':
-                    $wpdb->query("DELETE FROM {$wpdb->prefix}oms_coupons WHERE ID IN({$ids})");
-                    $wpdb->query("DELETE FROM {$wpdb->prefix}oms_coupons_user WHERE oms_coupon_id IN({$ids})");
+                    $wpdb->query($wpdb->prepare(
+                        "DELETE FROM {$wpdb->prefix}oms_coupons WHERE ID IN(%s)",
+                        $ids,
+                    ));
+                    $wpdb->query($wpdb->prepare(
+                        "DELETE FROM {$wpdb->prefix}oms_coupons_user WHERE oms_coupon_id IN(%s)",
+                        $ids,
+                    ));
                     break;
                 default:
                     break;
@@ -373,14 +382,15 @@ class Coupon_Admin_Table extends WP_List_Table
         $this->process_bulk_action();
 
         // If no sort, default to ID.
-        $orderby = !empty($_REQUEST['orderby']) ? wp_unslash($_REQUEST['orderby']) : 'ID'; // WPCS: Input var ok.
-        // If no order, default to asc.
-        $order = !empty($_REQUEST['order']) ? wp_unslash($_REQUEST['order']) : 'desc'; // WPCS: Input var ok.
+        $orderby     = !empty($_REQUEST['orderby']) && in_array($_REQUEST['orderby'], $sortable, true) ? $_REQUEST['orderby'] : 'ID';
+        $order       = !empty($_REQUEST['order']) && 'ASC' === strtoupper($_REQUEST['order']) ? 'ASC' : 'DESC';
+        $orderby_sql = 'c.' . sanitize_sql_orderby("{$orderby} {$order}");
 
         /*
          * GET THE DATA!
          */
-        $data = $wpdb->get_results("
+        $data = $wpdb->get_results($wpdb->prepare(
+            "
             SELECT
                 c.ID, c.code, c.type, c.value, c.limit, c.activated_at, c.expired_at,
                 GROUP_CONCAT(u.display_name SEPARATOR ', ') AS used_by, COUNT(u.ID) AS number_of_uses
@@ -389,9 +399,13 @@ class Coupon_Admin_Table extends WP_List_Table
             LEFT JOIN {$wpdb->prefix}users AS u ON cu.user_id = u.ID
             WHERE c.active = 1
             GROUP BY c.ID, c.code, c.type, c.value, c.limit, c.activated_at, c.expired_at
-            ORDER BY c.{$orderby} {$order}
-            LIMIT {$per_page} OFFSET {$offset_page}
-        ", ARRAY_A);
+            ORDER BY %s
+            LIMIT %d OFFSET %d
+            ",
+            $orderby_sql,
+            $per_page,
+            $offset_page,
+        ), ARRAY_A);
 
         /*
          * REQUIRED. Now we can add our *sorted* data to the items property, where
