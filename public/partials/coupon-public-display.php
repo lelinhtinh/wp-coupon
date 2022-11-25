@@ -21,7 +21,7 @@ $coupon_list_table->prepare_items();
 <div class="wrap">
 <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
     <form id="movies-filter" method="get">
-        <input type="hidden" name="page" value="<?php esc_attr($_REQUEST['page']) ?>" />
+        <input type="hidden" name="page" value="<?php echo esc_attr($_REQUEST['page']) ?>" />
         <?php $coupon_list_table->display() ?>
     </form>
 </div>
