@@ -3,19 +3,19 @@
  * included in this file.
  */
 .status-success {
-  color: #00a32a;
+  color: #00a32a !important;
 }
 
 .status-warning {
-  color: #dba617;
+  color: #dba617 !important;
 }
 
 .status-error {
-  color: #d63638;
+  color: #d63638 !important;
 }
 
 .status-info {
-  color: #72aee6;
+  color: #72aee6 !important;
 }
 
 .oms-coupon-wrapper {
@@ -95,8 +95,8 @@
 
 .oms-coupon-save-btn {
   cursor: pointer;
-  background: #ff5722;
-  border: 1px solid #ff4308;
+  background: #ff5722 !important;
+  border: 1px solid #ff4308 !important;
   color: #fff !important;
   padding: 4px 6px;
   text-decoration: none;
@@ -110,19 +110,19 @@
 
 .oms-coupon-save-btn:focus,
 .oms-coupon-save-btn:hover {
-  background: #c7431b;
-  border-color: #b82e03;
+  background: #c7431b !important;
+  border-color: #b82e03 !important;
 }
 
 .oms-coupon-save-btn:active {
-  background: #8a2f13;
-  border-color: #6e1b01;
+  background: #8a2f13 !important;
+  border-color: #6e1b01 !important;
 }
 
 .oms-coupon-save-btn:disabled {
   cursor: not-allowed;
-  background: #353535;
-  border-color: #131313;
+  background: #353535 !important;
+  border-color: #131313 !important;
 }
 
 .oms-coupon-disable .oms-coupon-timer,
