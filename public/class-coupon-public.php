@@ -140,15 +140,13 @@ class Coupon_Public
 
 		global $wpdb;
 		$findOne = $wpdb->get_row($wpdb->prepare(
-			"
-			SELECT
+			"SELECT
 				c.ID, c.code, c.type, c.value, c.limit, c.activated_at, c.expired_at,
 				COUNT(cu.user_id) AS number_of_uses, GROUP_CONCAT(cu.user_id SEPARATOR ',') AS used_by_id
 			FROM {$wpdb->prefix}oms_coupons AS c
 			LEFT JOIN {$wpdb->prefix}oms_coupons_user AS cu ON cu.oms_coupon_id = c.ID
 			WHERE c.ID = %d AND c.active = 1
-			GROUP BY c.ID, c.code, c.type, c.value, c.limit, c.activated_at, c.expired_at
-			",
+			GROUP BY c.ID, c.code, c.type, c.value, c.limit, c.activated_at, c.expired_at",
 			$coupon_id,
 		), OBJECT);
 
@@ -218,13 +216,17 @@ class Coupon_Public
 	public function save_coupon()
 	{
 		check_ajax_referer($this->plugin_prefix . $this->plugin_name . '_save_nonce');
-		if (!$_POST['action'] || $_POST['action'] !== 'oms_coupon_save') {
+		if (get_request_parameter('action') !== 'oms_coupon_save') {
 			header('Status: 403 Forbidden', true, 403);
 			wp_die();
 		}
 
 		$user_id  = get_current_user_id();
-		$coupon_id = intval($_POST['id']);
+		$coupon_id = intval(get_request_parameter('id'));
+		if (!$coupon_id) {
+			header('Status: 400 Bad Request', true, 400);
+			wp_die();
+		}
 		$now = tz_strtodate('now');
 
 		global $wpdb;

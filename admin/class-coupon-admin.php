@@ -117,13 +117,13 @@ class Coupon_Admin
 	public function create_coupon()
 	{
 		check_ajax_referer($this->plugin_prefix . $this->plugin_name . '_create_nonce');
-		if (!$_POST['action'] || $_POST['action'] !== 'oms_coupon_create' || !current_user_can('administrator')) {
+		if (get_request_parameter('action') !== 'oms_coupon_create' || !current_user_can('administrator')) {
 			header('Status: 403 Forbidden', true, 403);
 			wp_die();
 		}
 
 		$user_id  = get_current_user_id();
-		$code = sanitize_key($_POST['code']);
+		$code = sanitize_key(get_request_parameter('code'));
 
 		global $wpdb;
 		$findOne = $wpdb->get_row($wpdb->prepare(
@@ -137,14 +137,19 @@ class Coupon_Admin
 			], 400);
 		}
 
-		$type = in_array($_POST['type'], ['percentage', 'numeric']) ? $_POST['type'] : 'percentage';
-		$value = !empty($_POST['value']) ? intval($_POST['value']) : null;
-		$limit = !empty($_POST['limit']) ? intval($_POST['limit']) : null;
-		$activated_at = !empty($_POST['activated_at']) ? tz_strtodate($_POST['activated_at']) : null;
-		$expired_at = !empty($_POST['expired_at']) ? tz_strtodate($_POST['expired_at']) : null;
+		$type = get_request_parameter('type', 'percentage');
+		$type = in_array($type, ['percentage', 'numeric'], true) ? $type : 'percentage';
+		$value = get_request_parameter('value');
+		$value = !$value ? null : intval($value);
+		$limit = get_request_parameter('limit');
+		$limit = !$limit ? null : intval($limit);
+		$activated_at = get_request_parameter('activated_at');
+		$activated_date = !$activated_at ? null : tz_strtodate($activated_at);
+		$expired_at = get_request_parameter('expired_at');
+		$expired_date = !$expired_at ? null : tz_strtodate($expired_at);
 		if (
 			!is_null($activated_at) && !is_null($expired_at)
-			&& tz_strtodate($_POST['activated_at'], true) > tz_strtodate($_POST['expired_at'], true)
+			&& tz_strtodate($activated_at, true) > tz_strtodate($expired_at, true)
 		) {
 			wp_send_json([
 				'status' => 'error',
@@ -157,8 +162,8 @@ class Coupon_Admin
 			'type' => $type,
 			'value' => $value,
 			'limit' => $limit,
-			'activated_at' => $activated_at,
-			'expired_at' => $expired_at,
+			'activated_at' => $activated_date,
+			'expired_at' => $expired_date,
 			'created_by' => $user_id,
 		];
 		$wpdb->insert(

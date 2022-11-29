@@ -187,7 +187,7 @@ class Coupon_Admin_Table extends WP_List_Table
      */
     protected function column_code($item)
     {
-        $page = wp_unslash($_REQUEST['page']);
+        $page = get_request_parameter('page', 1);
 
         // Build hide row action.
         $hide_query_args = [
@@ -297,9 +297,13 @@ class Coupon_Admin_Table extends WP_List_Table
     protected function process_bulk_action()
     {
         global $wpdb;
-        if (isset($_GET[$this->_args['singular']])) {
-            $coupon_params = wp_unslash($_GET[$this->_args['singular']]);
-            $ids = is_array($coupon_params) ? implode(',', $coupon_params) : $coupon_params;
+
+        if (isset($_REQUEST[$this->_args['singular']])) {
+            $coupon_params = get_request_parameter($this->_args['singular']);
+            $ids = is_array($coupon_params)
+                ? implode(',', array_map('intval', $coupon_params))
+                : intval($coupon_params);
+
             switch ($this->current_action()) {
                 case 'hide':
                     $wpdb->query($wpdb->prepare(
@@ -382,16 +386,18 @@ class Coupon_Admin_Table extends WP_List_Table
         $this->process_bulk_action();
 
         // If no sort, default to ID.
-        $orderby     = !empty($_REQUEST['orderby']) && in_array($_REQUEST['orderby'], $sortable, true) ? $_REQUEST['orderby'] : 'ID';
-        $order       = !empty($_REQUEST['order']) && 'ASC' === strtoupper($_REQUEST['order']) ? 'ASC' : 'DESC';
+        $orderby = get_request_parameter('orderby', 'ID');
+        if (!in_array($orderby, array_keys($sortable), true)) {
+            $orderby = 'ID';
+        }
+        $order = 'ASC' === strtoupper(get_request_parameter('order')) ? 'ASC' : 'DESC';
         $orderby_sql = 'c.' . sanitize_sql_orderby("{$orderby} {$order}");
 
         /*
          * GET THE DATA!
          */
         $data = $wpdb->get_results($wpdb->prepare(
-            "
-            SELECT
+            "SELECT
                 c.ID, c.code, c.type, c.value, c.limit, c.activated_at, c.expired_at,
                 GROUP_CONCAT(u.display_name SEPARATOR ', ') AS used_by, COUNT(u.ID) AS number_of_uses
             FROM {$wpdb->prefix}oms_coupons AS c
@@ -399,10 +405,8 @@ class Coupon_Admin_Table extends WP_List_Table
             LEFT JOIN {$wpdb->prefix}users AS u ON cu.user_id = u.ID
             WHERE c.active = 1
             GROUP BY c.ID, c.code, c.type, c.value, c.limit, c.activated_at, c.expired_at
-            ORDER BY %s
-            LIMIT %d OFFSET %d
-            ",
-            $orderby_sql,
+            ORDER BY {$orderby_sql}
+            LIMIT %1\$d OFFSET %2\$d",
             $per_page,
             $offset_page,
         ), ARRAY_A);
