@@ -230,19 +230,16 @@ class Coupon_Public
 		global $wpdb;
 
 		$findOne = $wpdb->get_row($wpdb->prepare(
-			"
-			SELECT
-			    c.ID, c.limit,
-			    COUNT(cu.user_id) AS number_of_uses, GROUP_CONCAT(cu.user_id SEPARATOR ',') AS used_by_id
+			"SELECT c.ID, c.limit,
+				COUNT(cu.user_id) AS number_of_uses, GROUP_CONCAT(cu.user_id SEPARATOR ',') AS used_by_id
 			FROM {$wpdb->prefix}oms_coupons AS c
-            LEFT JOIN {$wpdb->prefix}oms_coupons_user AS cu ON cu.oms_coupon_id = c.ID
+			LEFT JOIN {$wpdb->prefix}oms_coupons_user AS cu ON cu.oms_coupon_id = c.ID
 			WHERE
-				c.ID = %d AND c.active = 1
-				AND ( ( c.activated_at IS NOT NULL AND c.activated_at < '%s' ) OR c.activated_at IS NULL )
-				AND ( ( c.expired_at IS NOT NULL AND c.expired_at > '%s' ) OR c.expired_at IS NULL )
+				c.ID = %1\$d AND c.active = 1
+				AND ( ( c.activated_at IS NOT NULL AND c.activated_at < '%2\$s' ) OR c.activated_at IS NULL )
+				AND ( ( c.expired_at IS NOT NULL AND c.expired_at > '%2\$s' ) OR c.expired_at IS NULL )
 			GROUP BY c.ID, c.limit
-			HAVING c.limit > number_of_uses
-			",
+			HAVING c.limit > number_of_uses",
 			$coupon_id,
 			$now,
 		), OBJECT);
