@@ -2,9 +2,9 @@
 Contributors: lelinhtinh
 Donate link: https://github.com/lelinhtinh
 Tags: affiliate, coupon, coupons, deal, deals
-Requires at least: 1.0.0
+Requires at least: 4.4
 Tested up to: 6.1.1
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -38,10 +38,13 @@ Ha ha... maybe.
 
 == Changelog ==
 
+= 1.0.1 =
+* Fix unable to uninstall.
+
 = 1.0.0 =
 * First release.
 
 == Upgrade Notice ==
 
-= 1.0.0 =
-No comment.
+= 1.0.1 =
+Old version failed to uninstall.

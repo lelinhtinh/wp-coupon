@@ -16,10 +16,10 @@
  * Plugin Name:       OMS Coupon
  * Plugin URI:        https://github.com/lelinhtinh/wp-coupon
  * Description:       WordPress Coupon plugin to promote affiliate coupon and deals on your WordPress site.
- * Version:           1.0.0
+ * Version:           1.0.1
  * Author:            lelinhtinh
- * Requires at least: 1.0.0
- * Requires PHP:      7.0.0
+ * Requires at least: 4.4
+ * Requires PHP:      7.0
  * Tested up to:      6.1.1
  * Author URI:        https://github.com/lelinhtinh
  * License:           GPL-2.0+
@@ -38,7 +38,7 @@ if (!defined('WPINC')) {
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define('COUPON_VERSION', '1.0.0');
+define('COUPON_VERSION', '1.0.1');
 
 /**
  * Define the Plugin basename
