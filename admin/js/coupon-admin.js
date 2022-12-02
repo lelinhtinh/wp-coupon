@@ -56,6 +56,8 @@ jQuery(function ($) {
 
         $code.trigger('focus');
         $form[0].reset();
+        const page = new URLSearchParams(location.search).get('page');
+        const pageParam = encodeURIComponent(page);
 
         const row = `
 <tr>
@@ -71,7 +73,7 @@ jQuery(function ($) {
     <div class="row-actions">
       <span class="hide">
         <a
-          href="admin.php?page=wp-coupon%2Fadmin%2Fpartials%2Fcoupon-admin-display.php&amp;action=hide&amp;coupon=${ID}&amp;_wpnonce=${
+          href="admin.php?page=${pageParam}&amp;action=hide&amp;coupon=${ID}&amp;_wpnonce=${
           oms_coupon_admin_ajax.nonce
         }"
         >Hide</a>
@@ -79,7 +81,7 @@ jQuery(function ($) {
       |
       <span class="delete">
         <a
-          href="admin.php?page=wp-coupon%2Fadmin%2Fpartials%2Fcoupon-admin-display.php&amp;action=delete&amp;coupon=${ID}&amp;_wpnonce=${
+          href="admin.php?page=${pageParam}&amp;action=delete&amp;coupon=${ID}&amp;_wpnonce=${
           oms_coupon_admin_ajax.nonce
         }"
         >Delete</a>
