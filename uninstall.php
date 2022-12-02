@@ -3,8 +3,8 @@
 /**
  * Fired when the plugin is uninstalled.
  *
- * We are not using an uninstall hook because WordPress perfoms bad when using it.
- * Even if below issue is "fixed", it did not resolve the perfomance issue.
+ * We are not using an uninstall hook because WordPress performs bad when using it.
+ * Even if below issue is "fixed", it did not resolve the performance issue.
  *
  * @see https://core.trac.wordpress.org/ticket/31792
  *
@@ -42,7 +42,7 @@ function oms_uninstall()
 		|| empty($_REQUEST)
 		|| !isset($_REQUEST['plugin'])
 		|| !isset($_REQUEST['action'])
-		|| 'coupon/coupon.php' !== $_REQUEST['plugin']
+		|| dirname(plugin_basename(__FILE__)) . '/coupon.php' !== $_REQUEST['plugin']
 		|| 'delete-plugin' !== $_REQUEST['action']
 		|| !check_ajax_referer('updates', '_ajax_nonce')
 		|| !current_user_can('activate_plugins')
@@ -56,7 +56,7 @@ function oms_uninstall()
 	 * @see https://developer.wordpress.org/plugins/plugin-basics/uninstall-methods/#method-2-uninstall-php
 	 */
 	global $wpdb;
-	$plugin_name = 'oms_coupon';
+	$plugin_name = 'oms_coupons';
 	$table_name = $wpdb->prefix . $plugin_name;
 	$wpdb->query("DROP TABLE IF EXISTS {$table_name},{$table_name}_user;");
 	delete_option($plugin_name . '_version');
