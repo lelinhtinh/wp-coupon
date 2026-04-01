@@ -20,7 +20,7 @@
  * Author:            lelinhtinh
  * Requires at least: 4.4
  * Requires PHP:      7.0
- * Tested up to:      6.1.1
+ * Tested up to:      6.9
  * Author URI:        https://github.com/lelinhtinh
  * License:           GPL-2.0+
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.txt
