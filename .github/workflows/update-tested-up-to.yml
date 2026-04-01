@@ -1,0 +1,63 @@
+name: Update "Tested up to" Version
+
+on:
+  schedule:
+    # Run every Sunday at 00:00 UTC
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
+
+jobs:
+  update-tested-up-to:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get latest WordPress version
+        id: get_wp_version
+        run: |
+          LATEST_WP=$(curl -sS https://api.wordpress.org/core/version-check/1.7/ | jq -r '.offers[0].version' | cut -d. -f1,2)
+          echo "latest_wp=$LATEST_WP" >> $GITHUB_OUTPUT
+
+      - name: Download WordPress.org readme
+        env:
+          SLUG: oms-coupon
+        run: |
+          # Download the current readme.txt from WordPress.org
+          curl -sSL --retry 3 --retry-delay 5 --retry-all-errors --fail -o /tmp/wp-org-readme.txt "https://plugins.svn.wordpress.org/$SLUG/trunk/readme.txt"
+          if [ $? -ne 0 ]; then
+            echo "::error::Could not fetch readme.txt from WordPress.org for $SLUG"
+          fi
+
+      - name: Update readme.txt
+        env:
+          LATEST_TESTED_UP_TO: ${{ steps.get_wp_version.outputs.latest_wp }}
+        run: |
+          # If we got the readme.txt from WordPress.org, use it as a base.
+          if [ -f /tmp/wp-org-readme.txt ]; then
+            cp /tmp/wp-org-readme.txt "./readme.txt"
+          fi
+          sed -i -E "s/^(Tested up to:[[:space:]]+)[0-9\.]+/\1$LATEST_TESTED_UP_TO/" readme.txt
+
+      - name: Update plugin entry file (coupon.php)
+        env:
+          LATEST_TESTED_UP_TO: ${{ steps.get_wp_version.outputs.latest_wp }}
+        run: |
+          sed -i -E "s/^([[:space:]]*\*[[:space:]]+Tested up to:[[:space:]]+)[0-9\.]+/\1$LATEST_TESTED_UP_TO/" coupon.php
+
+      - name: Commit changes to GitHub
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update 'Tested up to' to WordPress ${{ steps.get_wp_version.outputs.latest_wp }}"
+          file_pattern: "readme.txt coupon.php"
+
+      - name: Deploy to WordPress.org
+        uses: 10up/action-wordpress-plugin-asset-update@stable
+        env:
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+          SLUG: oms-coupon
+          SKIP_ASSETS: true
+          IGNORE_OTHER_FILES: true
