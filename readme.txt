@@ -3,7 +3,7 @@ Contributors: lelinhtinh
 Donate link: https://github.com/lelinhtinh
 Tags: affiliate, coupon, coupons, deal, deals
 Requires at least: 4.4
-Tested up to: 6.9
+Tested up to: 7.0
 Stable tag: 1.0.2
 Requires PHP: 7.0
 License: GPLv2 or later
